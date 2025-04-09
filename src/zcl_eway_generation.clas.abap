@@ -137,13 +137,15 @@ CLASS ZCL_EWAY_GENERATION IMPLEMENTATION.
     else.
         wa_final-togstin = buyeradd-b-taxnumber3.
         wa_final-topincode   = buyeradd-b-postalcode  .
-        wa_final-tostatecode  = buyeradd-b-TaxNumber3+0(2)  .
-        wa_final-acttostatecode  = buyeradd-b-TaxNumber3+0(2)  .
 
-        IF wa_final-togstin <> ''.
-          wa_final-toplace = wa_final-togstin+0(2).
-        ENDIF.
+        SELECT SINGLE FROM ZI_Statecodemaster
+        FIELDS Statecodenum
+        WHERE StateCode = @buyeradd-b-Region
+        INTO @DATA(lv_statecode).
 
+        wa_final-tostatecode  = lv_statecode  .
+        wa_final-acttostatecode  = lv_statecode .
+        wa_final-toplace = lv_statecode.
     ENDIF.
 
     wa_final-tolglname = buyeradd-b-customername.
