@@ -304,14 +304,13 @@ CLASS ZCL_IRN_GENERATION IMPLEMENTATION.
         wa_final-buyer_details-gstin = buyeradd-b-taxnumber3.
         wa_final-buyer_details-pincode   = buyeradd-b-postalcode  .
 
-        SELECT SINGLE FROM ZI_Statecodemaster
+        SELECT SINGLE FROM zstatecodemaster
         FIELDS Statecodenum
         WHERE StateCode = @buyeradd-b-Region
         INTO @DATA(lv_statecode).
 
         wa_final-buyer_details-state_code  = lv_statecode  .
         wa_final-buyer_details-place_of_supply  = lv_statecode .
-        wa_final-buyer_details-state_code  = buyeradd-b-TaxNumber3+0(2)  .
         wa_final-buyer_details-location   = buyeradd-b-cityname .
 
 

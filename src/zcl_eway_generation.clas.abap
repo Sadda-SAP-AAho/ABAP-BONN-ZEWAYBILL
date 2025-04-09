@@ -138,7 +138,7 @@ CLASS ZCL_EWAY_GENERATION IMPLEMENTATION.
         wa_final-togstin = buyeradd-b-taxnumber3.
         wa_final-topincode   = buyeradd-b-postalcode  .
 
-        SELECT SINGLE FROM ZI_Statecodemaster
+        SELECT SINGLE FROM zstatecodemaster
         FIELDS Statecodenum
         WHERE StateCode = @buyeradd-b-Region
         INTO @DATA(lv_statecode).
@@ -152,15 +152,6 @@ CLASS ZCL_EWAY_GENERATION IMPLEMENTATION.
     wa_final-totrdname = buyeradd-b-customername.
     wa_final-toaddr1 = buyeradd-b-customerfullname.
     wa_final-toaddr2 = ''.
-
-
-
-
-    wa_final-toplace   = buyeradd-b-cityname .
-    wa_final-topincode   = buyeradd-b-postalcode  .
-    wa_final-tostatecode  = buyeradd-b-TaxNumber3+0(2)  .
-    wa_final-acttostatecode  = buyeradd-b-TaxNumber3+0(2).
-
     wa_final-transactiontype = 1.
     wa_final-supplytype = 'O'.
     IF lv_document_details-BillingDocumentType = 'JDC' OR lv_document_details-BillingDocumentType = 'JSN' OR lv_document_details-BillingDocumentType = 'JVR' OR lv_document_details-BillingDocumentType = 'JSP'.
