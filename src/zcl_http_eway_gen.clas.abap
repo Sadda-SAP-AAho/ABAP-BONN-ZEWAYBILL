@@ -166,7 +166,7 @@ CLASS ZCL_HTTP_EWAY_GEN IMPLEMENTATION.
 
 
         " Extract the date part (DD/MM/YYYY)
-        DATA(lv_date_part) = lv_date_str(10).  " '27/03/2025'
+        DATA(lv_date_part) = datestr(10).  " '27/03/2025'
 
         " Convert DD/MM/YYYY to YYYYMMDD
         DATA: lv_day   TYPE c length 2,

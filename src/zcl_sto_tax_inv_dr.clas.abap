@@ -130,7 +130,7 @@ CLASS ZCL_STO_TAX_INV_DR IMPLEMENTATION.
     WHERE a~BillingDocument = @bill_doc
     INTO @DATA(wa_header).
 
-
+data(ewaydate) = wa_header-ewaydate+8(2) && '/' && wa_header-ewaydate+5(2) && '/' && wa_header-ewaydate(4)..
 
 *    ********************************round off***********
 * select single from I_BillingDocumentPrcgElmnt with PRIVILEGED ACCESS as a
@@ -550,17 +550,17 @@ INTO @DATA(PackingCharging).
 
 **********************************************************************EWAYDATE
 
-    DATA(lv_ewaydate) = wa_irn-ewaydate.
-
-    " Format as YYYY-MM-DD
-    DATA(lv_formatted_ewaydate) = lv_ewaydate(4) && '-' && lv_ewaydate+4(2) && '-' && lv_ewaydate+6(2).
-
-    " Remove unwanted spaces (if any)
-    CONDENSE lv_formatted_ewaydate.
+*    DATA(lv_ewaydate) = wa_irn-ewaydate.
+*
+*    " Format as YYYY-MM-DD
+*    DATA(lv_formatted_ewaydate) = lv_ewaydate(4) && '-' && lv_ewaydate+4(2) && '-' && lv_ewaydate+6(2).
+*
+*    " Remove unwanted spaces (if any)
+*    CONDENSE lv_formatted_ewaydate.
 
 
     DATA(lv_ewayheader) =
-        |<EWAYBILLDATE>{ lv_formatted_ewaydate }</EWAYBILLDATE>| .
+        |<EWAYBILLDATE>{ ewaydate }</EWAYBILLDATE>| .
 
     CONCATENATE lv_xml lv_ewayheader INTO lv_xml.
 

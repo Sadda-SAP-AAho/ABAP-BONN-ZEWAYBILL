@@ -342,7 +342,7 @@ CLASS ZCL_EWAY_GENERATION IMPLEMENTATION.
     REPLACE ALL OCCURRENCES OF '"transDocNo":""' IN lv_string WITH '"transDocNo":null'.
     REPLACE ALL OCCURRENCES OF '"transDocDate":"00/00/0000"' IN lv_string WITH |"transDocDate":"{ DocDate }"|.
     REPLACE ALL OCCURRENCES OF '"transDocDate":""' IN lv_string WITH |"transDocDate":"{ DocDate }"|.
-    REPLACE ALL OCCURRENCES OF '"0 "' IN lv_string WITH '0'.
+    REPLACE ALL OCCURRENCES OF '0 "' IN lv_string WITH '0"'.
 
 
     result = lv_string.
