@@ -450,7 +450,7 @@ CLASS ZCL_IRN_GENERATION IMPLEMENTATION.
           ENDIF.
 
           SELECT SUM( conditionamount )    FROM i_billingdocumentitemprcgelmnt
-             WHERE   conditiontype IN ( 'ZDIS', 'ZDIV', 'ZDPT', 'ZDQT' )
+             WHERE   conditiontype IN ( 'ZDIS', 'ZDIV', 'ZDPT', 'ZDQT','Z100' )
              AND billingdocument = @wa_lines-billingdocument AND billingdocumentitem = @wa_lines-billingdocumentitem
               INTO @DATA(discount) .
 

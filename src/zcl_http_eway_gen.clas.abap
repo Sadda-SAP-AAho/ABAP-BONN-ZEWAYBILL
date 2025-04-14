@@ -144,7 +144,7 @@ CLASS ZCL_HTTP_EWAY_GEN IMPLEMENTATION.
               wa_zirn = lv_table_data.
 
               wa_zirn-ewaybillno = lv_message2-result-ewaybillno.
-              wa_zirn-ewaydate = getDate( lv_message2-result-ewaybilldate ).
+              wa_zirn-ewaydate = lv_message2-result-ewaybilldate.
               wa_zirn-ewaystatus = 'GEN'.
               wa_zirn-ewayvaliddate = getDate( lv_message2-result-validupto ).
               wa_zirn-ewaycreatedby = sy-mandt.

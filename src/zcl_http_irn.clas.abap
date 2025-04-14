@@ -220,7 +220,7 @@ CLASS ZCL_HTTP_IRN IMPLEMENTATION.
                      wa_zirn-ewaydate = lv_message1-result-ewbdt.
                      if wa_zirn-ewaybillno NE ''.
                         wa_zirn-ewaystatus = 'GEN'.
-                        wa_zirn-ewayvaliddate = getdate( lv_message1-result-ewbvalidtill ).
+                        wa_zirn-ewayvaliddate = getDate( lv_message1-result-ewbvalidtill ).
                         ewbres = | with Eway Bill No - { wa_zirn-ewaybillno }|.
                      ENDIF.
 

@@ -149,9 +149,9 @@ CLASS ZCL_HTTP_EWAYBILLBYIRN IMPLEMENTATION.
               wa_zirn = lv_table_data.
 
               wa_zirn-ewaybillno = lv_message2-result-ewbno.
-              wa_zirn-ewaydate = zcl_http_eway_gen=>getdate( lv_message2-result-ewbdt ).
+              wa_zirn-ewaydate = lv_message2-result-ewbdt .
               wa_zirn-ewaystatus = 'GEN'.
-              wa_zirn-ewayvaliddate = zcl_http_eway_gen=>getdate( lv_message2-result-ewbvalidtill ).
+              wa_zirn-ewayvaliddate = ZCL_HTTP_IRN=>getdate( lv_message2-result-ewbvalidtill ).
               wa_zirn-ewaycreatedby = sy-mandt.
 
               MODIFY ztable_irn FROM @wa_zirn.

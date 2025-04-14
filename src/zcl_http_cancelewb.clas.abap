@@ -63,7 +63,7 @@ CLASS zcl_http_cancelewb IMPLEMENTATION.
             INTO @DATA(lv_document_details) PRIVILEGED ACCESS.
 
         select single from ZI_PlantTable
-            Fields GSPPassword, GSPUserName, GstinNo
+            Fields EWBPassword, EWBUserName, GstinNo
             where CompCode = @lv_bukrs and PlantCode = @lv_document_details
             into @DATA(userPass).
 
@@ -82,14 +82,14 @@ CLASS zcl_http_cancelewb IMPLEMENTATION.
 
         req4->set_header_field(
            EXPORTING
-           i_name  = 'user_name'
-             i_value = CONV string( userPass-GSPUserName )
+           i_name  = 'username'
+             i_value = CONV string( userPass-EWBUserName )
          ).
 
          req4->set_header_field(
            EXPORTING
            i_name  = 'password'
-             i_value = CONV string( userPass-GSPPassword )
+             i_value = CONV string( userPass-EWBPassword )
          ).
 
          req4->set_header_field(
