@@ -1,0 +1,547 @@
+<mvc:View
+    controllerName="zirn.controller.Grid"
+    xmlns="sap.m"
+    xmlns:table="sap.ui.table"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:smartFilterBar="sap.ui.comp.smartfilterbar"
+    xmlns:smartTable="sap.ui.comp.smarttable"
+    xmlns:l="sap.ui.layout"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:core="sap.ui.core"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+    height="100%"
+>
+    <VBox
+        id="_IDGenVBox"
+        fitContainer="true"
+    >
+        <smartFilterBar:SmartFilterBar
+            id="_IDGenSmartFilterBar"
+            entitySet="ZIRN"
+            persistencyKey="SmartFilter_Explored"
+        />
+        <smartTable:SmartTable
+            id="_IDGenSmartTable"
+            entitySet="ZIRN"
+            tableType="ResponsiveTable"
+            header="Irn"
+            editTogglable="false"
+            enableAutoBinding="true"
+            app:useSmartToggle="true"
+            showFullScreenButton="true"
+            beforeRebindTable="onBeforeRebindTable"
+            class="sapUiResponsiveContentPadding"
+            persistencyKey="SmartTableAnalytical_Explored"
+            smartFilterId="_IDGenSmartFilterBar"
+            useVariantManagement="false"
+            initiallyVisibleFields="Bukrs,Billingdocno,Moduletype,Plant,Billingdate,Partycode,distributionchannel,billingdocumenttype,Partyname"
+        >
+            <table:Table
+                id="_IDGenTable"
+                enableSelectAll="true"
+                selectionMode="Single"
+                selectionBehavior="Row"
+                rowSelectionChange="onSelectionChange"
+            />
+            <!-- <Table
+                id="_IDGenTable"
+                mode="SingleSelectLeft"
+                growing="true"
+                inset="false"
+            >
+            <items>
+                <ColumnListItem 
+                    id="_IDGenColumnListItem" 
+                    vAlign="Middle"
+                    type="Navigation">
+                    </ColumnListItem>
+                </items>
+            </Table> -->
+            <smartTable:customToolbar>
+                <OverflowToolbar id="_IDGenOverflowToolbar2">
+                    <ToolbarSpacer id="_IDGenToolbarSpacer1" />
+                    <!-- <Button
+                        id="_IDEdittable"
+                        text="Edit Field"
+                        press="onEditData"
+                    /> -->
+                    <Button
+                        id="_IDEdittable1"
+                        text="Transport Details"
+                        press="openDialog"
+                    />
+                    <Button
+                        id="_IDEdittable2"
+                        text="Export Detail"
+                        press="openDialogDetail"
+                    />
+                    <MenuButton
+                        id="_IDGenMenuButton2"
+                        text="PrintForms"
+                        icon="sap-icon://action"
+                    >
+                        <menu>
+                            <Menu id="_IDGenMenu1">
+                                <MenuItem
+                                    id="_IDGenMenuItem5"
+                                    text="Tax Invoice"
+                                    icon="sap-icon://print"
+                                >
+                                    <items>
+                                        <MenuItem
+                                            id="OriginalBuyer"
+                                            text="Original For Buyer"
+                                            icon="sap-icon://print"
+                                            press="onClickPrintForm21"
+                                        />
+                                        <MenuItem
+                                            id="DuplicateFor"
+                                            text="Duplicate For Transporter"
+                                            icon="sap-icon://print"
+                                            press="onClickPrintForm22"
+                                        />
+                                        <MenuItem
+                                            id="OfficeCopy"
+                                            text="Office Copy"
+                                            icon="sap-icon://print"
+                                            press="onClickPrintForm23"
+                                        />
+                                    </items>
+                                </MenuItem>
+                                <MenuItem
+                                    id="_IDGenMenuItem6"
+                                    text="Export Tax Invoice"
+                                    icon="sap-icon://print"
+                                >
+                                    <items>
+                                        <MenuItem
+                                            id="ExpoOriginalBuyer"
+                                            text="Original For Buyer"
+                                            icon="sap-icon://print"
+                                            press="onClickPrintForm24"
+                                        />
+                                        <MenuItem
+                                            id="ExpoDuplicateFor"
+                                            text="Duplicate For Transporter"
+                                            icon="sap-icon://print"
+                                            press="onClickPrintForm25"
+                                        />
+                                        <MenuItem
+                                            id="ExpoOfficeCopy"
+                                            text="Office Copy"
+                                            icon="sap-icon://print"
+                                            press="onClickPrintForm26"
+                                        />
+                                    </items>
+                                </MenuItem>
+                                <!-- <MenuItem id="_IDGenMenuItem9" 
+                                    text="Performa Invoice"
+                                    icon="sap-icon://print"
+                                    press="onClickPrintForm6"
+                                /> -->
+                                <MenuItem
+                                    id="_IDGenMenuItem14"
+                                    text="Delivery Challan"
+                                    icon="sap-icon://print"
+                                >
+                                    <items>
+                                        <MenuItem
+                                            id="DelOriginalBuyer"
+                                            text="Original For Buyer"
+                                            icon="sap-icon://print"
+                                            press="onClickPrintForm27"
+                                        />
+                                        <MenuItem
+                                            id="DelDuplicateFor"
+                                            text="Duplicate For Transporter"
+                                            icon="sap-icon://print"
+                                            press="onClickPrintForm28"
+                                        />
+                                        <MenuItem
+                                            id="DeloOfficeCopy"
+                                            text="Office Copy"
+                                            icon="sap-icon://print"
+                                            press="onClickPrintForm29"
+                                        />
+                                    </items>
+                                </MenuItem>
+                                <MenuItem
+                                    id="_IDGenMenuItem15"
+                                    text="Packing List"
+                                    icon="sap-icon://print"
+                                    press="onClickPrintForm4"
+                                />
+                                <MenuItem
+                                    id="_IDGenMenuItem16"
+                                    text="Commercial Invoice"
+                                    icon="sap-icon://print"
+                                    press="onClickPrintForm5"
+                                />
+                                <MenuItem
+                                    id="_IDGenMenuItem7"
+                                    text="Custom Invoice"
+                                    icon="sap-icon://print"
+                                    press="onClickPrintForm18"
+                                />
+                                <MenuItem
+                                    id="_IDGenMenuItem8"
+                                    text="Custom PKT"
+                                    icon="sap-icon://print"
+                                    press="onClickPrintForm19"
+                                />
+                            </Menu>
+                        </menu>
+                    </MenuButton>
+                    <MenuButton
+                        id="_IDGenMenuButton1"
+                        text="Actions"
+                        icon="sap-icon://action"
+                    >
+                        <menu>
+                            <Menu id="_IDGenMenu">
+                                <MenuItem
+                                    id="_IDGenMenuItem"
+                                    text="IRN"
+                                    icon="sap-icon://document"
+                                    press="onClickIRN"
+                                />
+                                <MenuItem
+                                    id="_IDGenMenuItem1"
+                                    text="EwayBill"
+                                    icon="sap-icon://shipping-status"
+                                    press="onClickEwayBill"
+                                />
+                                <MenuItem
+                                    id="_IDGenMenuItem2"
+                                    text="EwayBillByIrn"
+                                    icon="sap-icon://document-text"
+                                    press="onClickEwayBillIrn"
+                                />
+                                <MenuItem
+                                    id="_IDGenMenuItem3"
+                                    text="Cancel IRN"
+                                    icon="sap-icon://delete"
+                                    press="onClickCancelIrn"
+                                />
+                                <MenuItem
+                                    id="_IDGenMenuItem4"
+                                    text="Cancel EwayBill"
+                                    icon="sap-icon://decline"
+                                    press="onClickCancelEWB"
+                                />
+                                <MenuItem
+                                    id="_IDGenMenuItem10"
+                                    text="Update IRN"
+                                    icon="sap-icon://edit"
+                                    press="onClickIRNUpdateOpen"
+                                />
+                                <MenuItem
+                                    id="_IDGenMenuItem9"
+                                    text="Update EwayBill"
+                                    icon="sap-icon://edit"
+                                    press="onClickEWBUpdateOpen"
+                                />
+                            </Menu>
+                        </menu>
+                    </MenuButton>
+
+                    <Button
+                        id="_IDGenButton2"
+                        text="Generate Data"
+                        press="onClickGenerateData"
+                    />
+                    <Button
+                        id="_IDGenButton3"
+                        text="Delete"
+                        press="onClickDelete"
+                    />
+                    <!-- <Button
+                        id="btnEdit"
+                        text="Edit"
+                        press="onEditToggle"
+                        visible="{= !${viewModel>/isEditable}}"
+                    /> -->
+
+                    <!-- <Button
+                        id="btnSave"
+                        text="Save"
+                        press="onSaveChanges"
+                        visible="{viewModel>/isEditable}"
+                    /> -->
+                    <!-- <Button id="_IDGenButton4"
+                        text="Details"
+                        press="onClickDetails"
+                    /> -->
+                </OverflowToolbar>
+            </smartTable:customToolbar>
+            <smartTable:layoutData>
+                <FlexItemData
+                    id="_IDGenFlexItemData"
+                    growFactor="1"
+                    baseSize="0%"
+                />
+            </smartTable:layoutData>
+        </smartTable:SmartTable>
+    </VBox>
+    <Dialog
+        id="_IDGenDialog1"
+        title="Generate IRN Data"
+        class="sapUiContentPadding"
+    >
+        <content>
+            <VBox
+                id="_IDGenVBox1"
+                width="100%"
+            >
+                <!-- Plant Input Field -->
+                <Label
+                    id="_IDGenLabel"
+                    text="Plant:"
+                />
+                <Input
+                    id="idPlantInput"
+                    placeholder=""
+                    width="100%"
+                    showValueHelp="true"
+                    valueHelpRequest=".onValueHelpRequest"
+                />
+
+                <!-- Plant Date Input Field -->
+                <Label
+                    id="_IDGenLabel1"
+                    text="Document Date:"
+                />
+                <DatePicker
+                    id="idPlantDate"
+                    valueFormat="yyyyMMdd"
+                    displayFormat="MMM dd, yyyy"
+                    placeholder="e.g. Dec 31, 2025"
+                    width="100%"
+                />
+            </VBox>
+        </content>
+
+        <!-- Footer Buttons -->
+        <beginButton>
+            <Button
+                id="_IDGenButton"
+                text="Generate Data"
+                type="Emphasized"
+                press="onGenerateIRNData"
+            />
+        </beginButton>
+        <endButton>
+            <Button
+                id="_IDGenButton7"
+                text="Cancel"
+                press="onCloseDialog"
+            />
+        </endButton>
+    </Dialog>
+
+    <Dialog
+        id="_IDGenDialog"
+        title="Generate IRN Data"
+        class="sapUiContentPadding"
+    >
+        <content>
+            <VBox
+                id="_IDGenVBox2"
+                width="100%"
+            >
+                <Text
+                    id="_IDGenText2"
+                    text="{viewModel>/textdata}"
+                />
+            </VBox>
+        </content>
+        <endButton>
+            <Button
+                id="_IDGenButton1"
+                text="Ok"
+                press="onCloseDialog2"
+            />
+        </endButton>
+    </Dialog>
+
+    <Dialog
+        id="_IDGenDialog3"
+        title="Update EWB Details"
+        class="sapUiContentPadding"
+    >
+        <content>
+            <f:SimpleForm
+                id="EntryHeader"
+                editable="true"
+                layout="ResponsiveGridLayout"
+                labelSpanXL="4"
+                labelSpanL="4"
+                labelSpanM="4"
+                labelSpanS="12"
+                adjustLabelSpan="false"
+                emptySpanXL="0"
+                emptySpanL="0"
+                emptySpanM="0"
+                emptySpanS="0"
+                columnsXL="3"
+                columnsL="3"
+                columnsM="2"
+                singleContainerFullSize="false"
+            >
+                <f:content>
+                    <core:Title
+                        id="_IDGenTitle"
+                        text=""
+                    />
+                    <Label
+                        id="_IDGenLabel9"
+                        text="Eway Bill No - "
+                    />
+                    <Input
+                        id="EntryType"
+                        value="{EWB>/Ewaybillno}"
+                        change="entryTypeChange"
+                        required="true"
+                    />
+                    <Label
+                        id="_IDGenLabel13"
+                        text="Eway Bill Date"
+                    />
+                    <DatePicker
+                        id="_IDGenDatePicker1"
+                        value="{EWB>/Ewaydate}"
+                        valueFormat="yyyy-MM-ddTHH:mm:ss"
+                        displayFormat="dd-MM-yyyy"
+                    />
+                    <Label
+                        id="_IDGenLabel14"
+                        text="Eway Valid Date"
+                    />
+                    <DatePicker
+                        id="_IDGenDatePicker2"
+                        value="{EWB>/EwayValidDate}"
+                        valueFormat="yyyy-MM-ddTHH:mm:ss"
+                        displayFormat="dd-MM-yyyy"
+                    />
+                </f:content>
+            </f:SimpleForm>
+        </content>
+        <beginButton>
+            <Button
+                id="_IDGenButton8"
+                text="Ok"
+                type="Emphasized"
+                press="onOKEWBDialog"
+            />
+        </beginButton>
+        <endButton>
+            <Button
+                id="_IDGenButton9"
+                text="Close"
+                press="oncloseEWBDialog"
+            />
+        </endButton>
+    </Dialog>
+
+    <Dialog
+        id="_IDGenDialog4"
+        title="Update IRN Details"
+        class="sapUiContentPadding"
+    >
+        <content>
+            <f:SimpleForm
+                id="_IDGenSimpleForm"
+                editable="true"
+                layout="ResponsiveGridLayout"
+                labelSpanXL="4"
+                labelSpanL="4"
+                labelSpanM="4"
+                labelSpanS="12"
+                adjustLabelSpan="false"
+                emptySpanXL="0"
+                emptySpanL="0"
+                emptySpanM="0"
+                emptySpanS="0"
+                columnsXL="3"
+                columnsL="3"
+                columnsM="2"
+                singleContainerFullSize="false"
+            >
+                <f:content>
+                    <core:Title
+                        id="_IDGenTitle1"
+                        text=""
+                    />
+                    <Label
+                        id="_IDGenLabel16"
+                        text="IRN No - "
+                    />
+                    <Input
+                        id="_IDGenInput10"
+                        value="{IRN>/Irnno}"
+                        change="entryTypeChange"
+                        required="true"
+                    />
+
+                    <Label
+                        id="_IDGenLabel17"
+                        text="Ack No - "
+                    />
+                    <Input
+                        id="_IDGenInput11"
+                        value="{IRN>/Ackno}"
+                        change="entryTypeChange"
+                        required="true"
+                    />
+                    <Label
+                        id="_IDGenLabel18"
+                        text="Ack Date"
+                    />
+                    <DatePicker
+                        id="_IDGenDatePicker"
+                        value="{IRN>/Ackdate}"
+                        valueFormat="yyyy-MM-ddTHH:mm:ss"
+                        displayFormat="dd-MM-yyyy"
+                    />
+                    <Label
+                        id="_IDGenLabel19"
+                        text="Signed Invoice - "
+                    />
+                    <TextArea
+                        id="_IDGenTextArea1"
+                        value="{IRN>/Signedinvoice}"
+                        change="entryTypeChange"
+                        required="true"
+                    />
+
+                    <Label
+                        id="_IDGenLabel20"
+                        text="Signed QR-Code - "
+                    />
+                    <TextArea
+                        id="_IDGenTextArea2"
+                        value="{IRN>/Signedqrcode}"
+                        change="entryTypeChange"
+                        required="true"
+                    />
+                </f:content>
+            </f:SimpleForm>
+        </content>
+        <beginButton>
+            <Button
+                id="_IDGenButton4"
+                text="Ok"
+                type="Emphasized"
+                press="onOKIRNDialog"
+            />
+        </beginButton>
+        <endButton>
+            <Button
+                id="_IDGenButton10"
+                text="Close"
+                press="oncloseIRNDialog"
+            />
+        </endButton>
+    </Dialog>
+</mvc:View>

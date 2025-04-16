@@ -1,0 +1,243 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+>
+    <Dialog
+        id="_IDGenDialog2"
+        title="Export Detail"
+    >
+        <content>
+            <VBox id="_IDGenVBox5">
+                <HBox
+                    id="_IDGenHBox4"
+                    justifyContent="End"
+                    alignItems="Center"
+                    width="90%"
+                    class="my-2"
+                >
+                    <Label
+                        id="_IDGenLabel2"
+                        text="container no:"
+                        class="sapUiSmallMarginRight"
+                    />
+                    <Input
+                        id="_IDGenInput3"
+                        type="Text"
+                        enabled="true"
+                        editable="true"
+                        showSuggestion="true"
+                        class="containerno"
+                        change="containerno"
+                    />
+                </HBox>
+                <HBox
+                    id="_IDGenHBox5"
+                    justifyContent="End"
+                    alignItems="Center"
+                    width="90%"
+                    class="my-2"
+                >
+                    <Label
+                        id="_IDGenLabel5"
+                        text="Line Seal No.:"
+                        class="sapUiSmallMarginRight"
+                    />
+                    <Input
+                        id="_IDGenInput4"
+                        type="Text"
+                        enabled="true"
+                        editable="true"
+                        class="SalesOrder-Inp"
+                        change="linesealno"
+                    />
+                </HBox>
+            </VBox>
+
+            <VBox id="_IDGenVBox6">
+                <HBox
+                    id="_IDGenHBox6"
+                    justifyContent="End"
+                    alignItems="Center"
+                    width="90%"
+                    class="my-2"
+                >
+                    <Label
+                        id="_IDGenLabel6"
+                        text="Custom Seal No.:"
+                        class="sapUiSmallMarginRight"
+                    />
+                    <Input
+                        id="_IDGenInput5"
+                        type="Text"
+                        enabled="true"
+                        editable="true"
+                        class="gr-Inp"
+                        change="customsealno"
+                    />
+                </HBox>
+                <HBox
+                    id="_IDGenHBox7"
+                    justifyContent="End"
+                    alignItems="Center"
+                    width="90%"
+                    class="my-2"
+                >
+                    <Label
+                        id="_IDGenLabel7"
+                        text="Booking No."
+                        class="sapUiSmallMarginRight"
+                    />
+                    <Input
+                        id="_IDGenInput92"
+                        type="Text"
+                        enabled="true"
+                        editable="true"
+                        showSuggestion="true"
+                        class="containerno"
+                        change="bookno"
+                    />
+                </HBox>
+                <HBox
+                    id="_IDGenHBox8"
+                    justifyContent="End"
+                    alignItems="Center"
+                    width="90%"
+                    class="my-2"
+                >
+                    <Label
+                        id="_IDGenLabel8"
+                        text="Place of receipt of pre carrier"
+                        class="sapUiSmallMarginRight"
+                    />
+                    <Input
+                        id="_IDGenInput6"
+                        type="Text"
+                        enabled="true"
+                        editable="true"
+                        class="SalesOrder-Inp"
+                        change="Placecarrier"
+                    />
+                </HBox>
+
+                <HBox id="_IDGenHBox9"
+                    justifyContent="End"
+                    alignItems="Center"
+                    width="90%"
+                    class="my-2"
+                >
+                    <Label id="_IDGenLabel10"
+                        text="Max Gross Wt"
+                        class="sapUiSmallMarginRight"
+                    />
+                    <Input id="_IDGenInput8"
+                        type="Text"
+                        enabled="true"
+                        editable="true"
+                        class="SalesOrder-Inp"
+                        change="maxgWt"
+                    />
+                </HBox>
+
+                <HBox id="_IDGenHBox10"
+                    justifyContent="End"
+                    alignItems="Center"
+                    width="90%"
+                    class="my-2"
+                >
+                    <Label id="_IDGenLabel11"
+                        text="C-Tare Wt"
+                        class="sapUiSmallMarginRight"
+                    />
+                    <Input id="_IDGenInput9"
+                        type="Text"
+                        enabled="true"
+                        editable="true"
+                        class="SalesOrder-Inp"
+                        change="ctarewt2"
+                    />
+                </HBox>
+
+                <HBox id="_IDGenHBox11"
+                    justifyContent="End"
+                    alignItems="Center"
+                    width="90%"
+                    class="my-2"
+                >
+                    <Label id="_IDGenLabel12"
+                        text="Max Cargo Wt"
+                        class="sapUiSmallMarginRight"
+                    />
+                    <Input id="_IDGenInput7"
+                        type="Text"
+                        enabled="true"
+                        editable="true"
+                        class="SalesOrder-Inp"
+                        change="maxcargowt2"
+                    />
+                </HBox>
+                <!-- <HBox id="_IDGenHBox9"  
+                justifyContent="End"
+                alignItems="Center"
+                width="90%"
+                class="my-2"
+            >
+                <Label id="_IDGenLabel10"  text="Gross Weight:" class="sapUiSmallMarginRight" />
+                <Input id="_IDGenInput7"
+                    type="Text"
+                    enabled="true"
+                    editable="true"
+                    class="SalesOrder-Inp"
+                    change="GrossWeight"
+                />
+            </HBox>
+             <HBox id="_IDGenHBox10" 
+               
+                justifyContent="End"
+                alignItems="Center"
+                width="90%"
+                class="my-2"
+            >
+                <Label id="_IDGenLabel11"  text="Proforma Invoice no.:" class="sapUiSmallMarginRight" />
+                <Input id="_IDGenInput8" 
+                    type="Text"
+                    enabled="true"
+                    editable="true"
+                    class="SalesOrder-Inp"
+                    change="ProformaInvoiceno"
+                />
+            </HBox>
+             <HBox id="_IDGenHBox11" 
+               
+                justifyContent="End"
+                alignItems="Center"
+                width="90%"
+                class="my-2"
+            >
+                <Label id="_IDGenLabel12" text="Destination Country:" class="sapUiSmallMarginRight" />
+                <Input id="_IDGenInput9"
+                    type="Text"
+                    enabled="true"
+                    editable="true"
+                    class="SalesOrder-Inp"
+                    change="destinationcountry"
+                />
+            </HBox> -->
+            </VBox>
+        </content>
+        <beginButton>
+            <Button
+                id="_IDGenButton5"
+                text="Ok"
+                type="Emphasized"
+                press="dialogOk"
+            />
+        </beginButton>
+        <endButton>
+            <Button
+                id="_IDGenButton6"
+                text="Close"
+                press="onClose"
+            />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

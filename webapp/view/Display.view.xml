@@ -1,0 +1,52 @@
+<mvc:View
+    controllerName="zirn.controller.Display"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:fo="sap.f"
+    xmlns:sfb="sap.ui.comp.smartfilterbar"
+    xmlns:smartForm="sap.ui.comp.smartform"
+    xmlns:t="sap.ui.table"
+    xmlns:smartTable="sap.ui.comp.smarttable"
+    xmlns:smartField="sap.ui.comp.smartfield"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+    height="100%"
+>
+    <Page
+        id="_IDGenPage2"
+        title="Item Details"
+    >
+        <headerContent>
+            <!-- <Button id="_IDGenButton6" press="onClickCancel" text="Cancel"/>
+			<Button id="_IDGenButton9" press="onClickDelete"  text="Delete"/> -->
+            <Button
+                id="IdSave"
+                icon="sap-icon://save"
+                press="onsave"
+            />
+        </headerContent>
+        <smartForm:SmartForm
+            id="smartForm"
+            app:defaultCheckBoxDisplayBehaviour="OnOff"
+            app:defaultDropDownDisplayBehaviour="idAndDescription"
+            validationMode="Async"
+            editTogglable="false"
+            title="Details"
+        >
+            <smartForm:Group id="_IDGenGroup1">
+                <smartForm:GroupElement id="_IDGenGroupElement" label="Company Code">
+                    <!-- <smartField:SmartField
+                        id="_IDGenSmartField"
+                        textLabel="Company Code"
+                        value="{myModel>/name}"
+                    /> -->
+                   <Text id="_IDGenText" text="{myModel>/Bukrs}"/>
+                </smartForm:GroupElement>
+                <smartForm:GroupElement id="_IDGenGroupElement1" label="Invoice No">
+                    <Text id="_IDGenText1" text="{myModel>/Billingdocno}"/>
+                </smartForm:GroupElement>
+            </smartForm:Group>
+        </smartForm:SmartForm>
+    </Page>
+</mvc:View>

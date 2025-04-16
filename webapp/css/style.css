@@ -1,0 +1,21 @@
+
+/* Enter your custom styles here
+
+#iapplication-zirn-display-component---Grid--_IDGenInput2-content{
+    width: 163%;
+}
+#__data387{
+    margin-left: 67px;
+}
+#__data389{
+    margin-left: 57px;
+}
+#__data391{
+    margin-left: 43px;
+} */
+
+[id$="---Grid--_IDGenTitle"],
+[id$="---Grid--_IDGenTitle1"]
+{
+    display: none!important;
+}

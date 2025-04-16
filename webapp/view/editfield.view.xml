@@ -1,0 +1,116 @@
+<mvc:View
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:fo="sap.f"
+    xmlns:sfb="sap.ui.comp.smartfilterbar"
+    xmlns:smartForm="sap.ui.comp.smartform"
+    xmlns:t="sap.ui.table"
+    xmlns:smartTable="sap.ui.comp.smarttable"
+    xmlns:smartField="sap.ui.comp.smartfield"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+    controllerName="zirn.controller.editfield"
+    height="100%"
+>
+    <Page
+        id="_IDGenPage21"
+        title="Security Check"
+        >
+    	<headerContent>
+		    <Button id="IdSave1" icon="sap-icon://save"  press="onsave"/>
+		</headerContent>
+       
+            <smartForm:SmartForm
+                id="smartForm1"
+                app:defaultCheckBoxDisplayBehaviour="OnOff"
+                app:defaultDropDownDisplayBehaviour="idAndDescription"
+                editTogglable="true"
+                >
+                <smartForm:Group id="_IDGenGroup11">
+                    <smartForm:GroupElement id="_IDGenGroupElement19">
+                        <smartField:SmartField
+                            id="_IDGenSmartField111"
+                            textLabel="Billing doc no"
+                            value="{Billingdocno}"
+                            editable="false"
+                        />
+                    </smartForm:GroupElement>
+                      <smartForm:GroupElement id="_IDGenGroupElement111">
+                        <smartField:SmartField
+                            id="_IDGenSmartField1111"
+                            textLabel="Vehicle No."
+                            value="{Vehiclenum}"
+                        >    
+                        </smartField:SmartField>
+                    </smartForm:GroupElement>
+                    <!-- <smartForm:GroupElement id="_IDGenGroupElement111">
+                        <smartField:SmartField
+                            id="_IDGenSmartField1111"
+                            textLabel="Automatic weigh bridge"
+                            value="{Automaticweighbridge}"
+                            change="auto"
+                        >
+                        <smartField:configuration>
+									<smartField:Configuration id="_IDGenConfiguration1" displayBehaviour="YesNo"/>
+					    </smartField:configuration>
+                        </smartField:SmartField>
+                    </smartForm:GroupElement>
+                    <smartForm:GroupElement id="_IDGenGroupElement42">
+                        <smartField:SmartField
+                            id="_IDGenSmartField42"
+                            value="{Manualweighbridge}"
+                            textLabel="Manual weigh bridge"
+                            change="manual"
+                        >
+                            <smartField:configuration>
+                                            <smartField:Configuration id="_IDGenConfiguration2" displayBehaviour="YesNo"/>
+                            </smartField:configuration>
+                        </smartField:SmartField>
+                    </smartForm:GroupElement> -->
+                  
+                </smartForm:Group>
+                <smartForm:Group id="_IDGenGroup" >
+                  <!-- <smartForm:GroupElement id="_IDGenGroupElement223">
+                        <smartField:SmartField
+                            id="_IDGenSmartField223"
+                            value="{QCrequired}"
+                            textLabel="QC Required"
+                            change="qcRec"
+                        >
+                            <smartField:configuration>
+                                            <smartField:Configuration id="_IDGenConfiguration3" displayBehaviour="YesNo"/>
+                            </smartField:configuration>
+                        </smartField:SmartField>
+                    </smartForm:GroupElement>
+
+                     <smartForm:GroupElement id="_IDGenGroupElement122" >
+                        <smartField:SmartField
+                            id="_IDGenSmartField22"
+                            value="{QCnotrequired}"
+                            textLabel="QC not Required"
+                            change="qcnotRec"
+                        >
+                            <smartField:configuration>
+                                            <smartField:Configuration id="_IDGenConfiguration4" displayBehaviour="YesNo"/>
+                            </smartField:configuration>
+                        </smartField:SmartField>
+                    </smartForm:GroupElement>
+
+                     <smartForm:GroupElement id="_IDGenGroupElement2" >
+                        <smartField:SmartField
+                            id="_IDGenSmartField222"
+                            value="{QCconfirmed}"
+                            textLabel="QC Confirmed"
+                            change="qccon"
+                            editable="{/isEditable}"
+                        >
+                            <smartField:configuration>
+                                            <smartField:Configuration id="_IDGenConfiguration5" displayBehaviour="YesNo"/>
+                            </smartField:configuration>
+                        </smartField:SmartField>
+                    </smartForm:GroupElement> -->
+                </smartForm:Group>
+            </smartForm:SmartForm>
+    </Page>
+</mvc:View>

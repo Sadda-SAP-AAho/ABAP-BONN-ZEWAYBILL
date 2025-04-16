@@ -1,0 +1,143 @@
+{
+  "_version": "1.65.0",
+  "sap.app": {
+    "id": "zirn",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.16.5",
+      "toolsId": "ae015d9e-7719-45ca-8ae1-7ab0f32755b1"
+    },
+    "dataSources": {
+      "ZSB_ZEWAYBILL_VAN": {
+        "uri": "/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Annotations(TechnicalName='ZSB_ZEWAYBILL_VAN',Version='0001')/$value/",
+        "type": "ODataAnnotation",
+        "settings": {
+          "localUri": "localService/mainService/ZSB_ZEWAYBILL_VAN.xml"
+        }
+      },
+      "mainService": {
+        "uri": "/sap/opu/odata/sap/ZSB_ZEWAYBILL/",
+        "type": "OData",
+        "settings": {
+          "annotations": [
+            "ZSB_ZEWAYBILL_VAN"
+          ],
+          "localUri": "localService/mainService/metadata.xml",
+          "odataVersion": "2.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "zirn-Display": {
+          "semanticObject": "zirn",
+          "action": "Display",
+          "title": "{{zirn-Display.flpTitle}}",
+          "subTitle": "{{zirn-Display.flpSubtitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.130.7",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "zirn.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {}
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "zirn.view",
+        "async": true,
+        "viewPath": "zirn.view"
+      },
+      "routes": [
+        {
+          "pattern": "Display",
+          "name": "Display",
+          "target": "Display"
+        },
+        {
+          "pattern": "",
+          "name": "Grid",
+          "target": "Grid"
+        }
+      ],
+      "targets": {
+        "Grid": {
+          "id": "Grid",
+          "name": "Grid"
+        },
+        "Display": {
+          "id": "Display",
+          "name": "Display"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "zirn.view.App",
+      "type": "XML",
+      "id": "App"
+    }
+  }
+}
