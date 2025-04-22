@@ -201,10 +201,10 @@ CLASS ZCL_HTTP_EWAYBILLBYIRN IMPLEMENTATION.
             IF lv_trans_details ne 'EX'.
               supType = 'B2B'.
             ELSE.
-              supType = 'EXPWP'.
+              supType = 'EXPWOP'.
             ENDIF.
 
-            if supType = 'EXPWP'.
+            if supType = 'EXPWOP'.
 
                 SELECT SINGLE FROM I_BillingDocumentItem AS a
                     inner join I_BILLINGDOCITEMPARTNER as b ON a~BillingDocument = b~BillingDocument

@@ -130,7 +130,19 @@ CLASS ZCL_STO_TAX_INV_DR IMPLEMENTATION.
     WHERE a~BillingDocument = @bill_doc
     INTO @DATA(wa_header).
 
-data(ewaydate) = wa_header-ewaydate+8(2) && '/' && wa_header-ewaydate+5(2) && '/' && wa_header-ewaydate(4)..
+    SELECT SINGLE
+    from i_billingdocumentitem AS a
+    fields *
+    where a~billingdocument = @bill_doc and a~ReferenceSDDocumentCategory = '2'
+    into @data(material_doc).
+
+    IF wa_header-ewaydate CS '-'.
+      DATA(ewaydate) = wa_header-ewaydate+8(2) && '/' && wa_header-ewaydate+5(2) && '/' && wa_header-ewaydate(4).
+    ELSEIF wa_header-ewaydate CS '/'.
+      ewaydate = wa_header-ewaydate(10).
+    ELSEIF wa_header-ewaydate IS INITIAL.
+      ewaydate = ''.
+    ENDIF.
 
 *    ********************************round off***********
 * select single from I_BillingDocumentPrcgElmnt with PRIVILEGED ACCESS as a
@@ -177,7 +189,7 @@ INTO @DATA(wa_AckDate).
 *************notify_party and third party  custom invoice *******************
     SELECT SINGLE FROM I_BillingDocument AS a
     LEFT JOIN I_PaymentTermsText AS b ON a~CustomerPaymentTerms = b~PaymentTerms
-    left join I_BillingDocumentTP as c on a~BillingDocument = c~BillingDocument
+    LEFT JOIN I_BillingDocumentTP AS c ON a~BillingDocument = c~BillingDocument
      FIELDS
       c~YY1_NotifyParty_BDH ,
      b~PaymentTermsName,
@@ -249,36 +261,36 @@ INTO @DATA(wa_AckDate).
  PRIVILEGED ACCESS.
 
 
-DATA: add1B TYPE string.
+    DATA: add1B TYPE string.
 
-add1B = wa_bill-StreetName. " Start with StreetName
+    add1B = wa_bill-StreetName. " Start with StreetName
 
-IF wa_bill-StreetPrefixName1 IS NOT INITIAL.
-  IF add1B IS NOT INITIAL.
-    CONCATENATE add1B wa_bill-StreetPrefixName1 INTO add1B SEPARATED BY ' '.
-  ELSE.
-    add1B = wa_bill-StreetPrefixName1.
-  ENDIF.
-ENDIF.
+    IF wa_bill-StreetPrefixName1 IS NOT INITIAL.
+      IF add1B IS NOT INITIAL.
+        CONCATENATE add1B wa_bill-StreetPrefixName1 INTO add1B SEPARATED BY ' '.
+      ELSE.
+        add1B = wa_bill-StreetPrefixName1.
+      ENDIF.
+    ENDIF.
 
-IF wa_bill-StreetPrefixName2 IS NOT INITIAL.
-  IF add1B IS NOT INITIAL.
-    CONCATENATE add1B wa_bill-StreetPrefixName2 INTO add1B SEPARATED BY ' '.
-  ELSE.
-    add1B = wa_bill-StreetPrefixName2.
-  ENDIF.
-ENDIF.
+    IF wa_bill-StreetPrefixName2 IS NOT INITIAL.
+      IF add1B IS NOT INITIAL.
+        CONCATENATE add1B wa_bill-StreetPrefixName2 INTO add1B SEPARATED BY ' '.
+      ELSE.
+        add1B = wa_bill-StreetPrefixName2.
+      ENDIF.
+    ENDIF.
 
-DATA: add2B TYPE string.
+    DATA: add2B TYPE string.
 
-add2B = wa_bill-CityName.
-IF wa_bill-PostalCode IS NOT INITIAL.
-  IF add2B IS NOT INITIAL.
-    CONCATENATE add2B wa_bill-PostalCode INTO add2B SEPARATED BY '- '.
-  ELSE.
-    add2B = wa_bill-PostalCode.
-  ENDIF.
-ENDIF.
+    add2B = wa_bill-CityName.
+    IF wa_bill-PostalCode IS NOT INITIAL.
+      IF add2B IS NOT INITIAL.
+        CONCATENATE add2B wa_bill-PostalCode INTO add2B SEPARATED BY '- '.
+      ELSE.
+        add2B = wa_bill-PostalCode.
+      ENDIF.
+    ENDIF.
 
 
 **************************************************************************Packing List Logic
@@ -308,6 +320,12 @@ ENDIF.
     FIELDS a~IncotermsClassification , b~PaymentTermsName
        WHERE a~BillingDocument = @bill_doc
     INTO @DATA(wa_incoterms).
+    SELECT SINGLE
+    FROM I_BillingDocumentItem AS a
+    LEFT JOIN I_Salesorder AS b ON a~SalesDocument = b~SalesOrder
+    FIELDS b~IncotermsClassification
+    WHERE a~BillingDocument = @bill_doc
+    INTO @DATA(incoterms).
 
 
 
@@ -337,36 +355,36 @@ ENDIF.
    INTO @DATA(wa_ship)
    PRIVILEGED ACCESS.
 
-DATA: add1S TYPE string.
+    DATA: add1S TYPE string.
 
-add1S = wa_ship-StreetName. " Start with StreetName
+    add1S = wa_ship-StreetName. " Start with StreetName
 
-IF wa_ship-StreetPrefixName1 IS NOT INITIAL.
-  IF add1S IS NOT INITIAL.
-    CONCATENATE add1S wa_ship-StreetPrefixName1 INTO add1S SEPARATED BY ' '.
-  ELSE.
-    add1S = wa_ship-StreetPrefixName1.
-  ENDIF.
-ENDIF.
+    IF wa_ship-StreetPrefixName1 IS NOT INITIAL.
+      IF add1S IS NOT INITIAL.
+        CONCATENATE add1S wa_ship-StreetPrefixName1 INTO add1S SEPARATED BY ' '.
+      ELSE.
+        add1S = wa_ship-StreetPrefixName1.
+      ENDIF.
+    ENDIF.
 
-IF wa_ship-StreetPrefixName2 IS NOT INITIAL.
-  IF add1S IS NOT INITIAL.
-    CONCATENATE add1S wa_ship-StreetPrefixName2 INTO add1S SEPARATED BY ' '.
-  ELSE.
-    add1S = wa_ship-StreetPrefixName2.
-  ENDIF.
-ENDIF.
+    IF wa_ship-StreetPrefixName2 IS NOT INITIAL.
+      IF add1S IS NOT INITIAL.
+        CONCATENATE add1S wa_ship-StreetPrefixName2 INTO add1S SEPARATED BY ' '.
+      ELSE.
+        add1S = wa_ship-StreetPrefixName2.
+      ENDIF.
+    ENDIF.
 
-DATA: add2S TYPE string.
+    DATA: add2S TYPE string.
 
-add2S = wa_ship-CityName.
-IF wa_ship-PostalCode IS NOT INITIAL.
-  IF add2S IS NOT INITIAL.
-    CONCATENATE add2S wa_ship-PostalCode INTO add2S SEPARATED BY '- '.
-  ELSE.
-    add2S = wa_ship-PostalCode.
-  ENDIF.
-ENDIF.
+    add2S = wa_ship-CityName.
+    IF wa_ship-PostalCode IS NOT INITIAL.
+      IF add2S IS NOT INITIAL.
+        CONCATENATE add2S wa_ship-PostalCode INTO add2S SEPARATED BY '- '.
+      ELSE.
+        add2S = wa_ship-PostalCode.
+      ENDIF.
+    ENDIF.
 
 *    DATA : wa_ad5 TYPE string.
 *    wa_ad5 = wa_bill-PostalCode.
@@ -437,7 +455,7 @@ ENDIF.
       LEFT JOIN i_handlingunititem AS b ON a~referencesddocument = b~handlingunitreferencedocument
       LEFT JOIN i_handlingunitheader AS c ON b~handlingunitexternalid = c~handlingunitexternalid
       LEFT JOIN i_productdescription AS d ON d~product = c~packagingmaterial
-      LEFT JOIN I_UnitOfMeasureText as h on a~BillingQuantityUnit = h~UnitOfMeasure and h~Language = 'E'
+      LEFT JOIN I_UnitOfMeasureText AS h ON a~BillingQuantityUnit = h~UnitOfMeasure AND h~Language = 'E'
       LEFT JOIN I_SalesDocumentItem AS e ON e~SalesDocument = a~SalesDocument AND e~salesdocumentitem = a~salesdocumentitem
       LEFT JOIN i_productplantbasic AS f ON a~Product = f~Product AND a~Plant = f~Plant
       LEFT JOIN i_billingdocumentitemprcgelmnt AS g ON g~BillingDocument = a~BillingDocument AND g~BillingDocumentItem = a~BillingDocumentItem
@@ -476,11 +494,11 @@ WHERE billingdocument = @bill_doc
   AND conditiontype = 'ZFRT'
   INTO @DATA(freight).
 
-      SELECT SUM( conditionamount )
+    SELECT SUM( conditionamount )
 FROM i_billingdocitemprcgelmntbasic
 WHERE billingdocument = @bill_doc
-  AND conditiontype = 'ZTCS'
-  INTO @DATA(TCS).
+AND conditiontype = 'ZTCS'
+INTO @DATA(tcs).
 
     SELECT SUM( conditionamount )
 FROM i_billingdocitemprcgelmntbasic
@@ -488,11 +506,11 @@ WHERE billingdocument = @bill_doc
 AND conditiontype = 'ZPCK'
 INTO @DATA(PackingCharging).
 
-       SELECT SUM( conditionamount )
-       FROM i_billingdocitemprcgelmntbasic
-       WHERE billingdocument = @bill_doc
-       AND conditiontype = 'ZINS'
-       INTO @DATA(Insurance).
+    SELECT SUM( conditionamount )
+    FROM i_billingdocitemprcgelmntbasic
+    WHERE billingdocument = @bill_doc
+    AND conditiontype = 'ZINS'
+    INTO @DATA(Insurance).
 
     DATA InvoiceCopyName TYPE c LENGTH 25.
     IF printform = 'expoOriginal' OR printform = 'stoOriginal' OR printform = 'DCOriginal'.
@@ -503,6 +521,79 @@ INTO @DATA(PackingCharging).
       InvoiceCopyName = 'Office Copy'.
     ENDIF.
 
+
+**********************************************Commercial invoice Notify Party******************************
+
+    SELECT SINGLE FROM I_BillingDocumentItem AS a
+           LEFT JOIN i_deliverydocumentitem AS b ON a~ReferenceSDDocument = b~DeliveryDocument AND a~ReferenceSDDocumentItem = b~DeliveryDocumentItem
+           LEFT JOIN I_SalesOrder AS c ON b~ReferenceSDDocument = c~SalesOrder
+           LEFT JOIN I_SalesQuotationPartner AS d ON c~ReferenceSDDocument = d~SalesQuotation
+           LEFT JOIN I_customer AS e ON d~Customer = e~Customer
+           LEFT JOIN i_address_2 WITH PRIVILEGED ACCESS AS f ON e~AddressID = f~AddressID
+           LEFT JOIN I_RegionText AS g ON f~Region = g~Region AND f~Country = g~Country
+           FIELDS d~FullName,d~Customer, f~streetname ,
+                f~streetprefixname1 ,
+                f~streetprefixname2 ,
+                f~cityname ,
+                f~region ,
+                f~postalcode ,
+                f~districtname ,
+                f~country  ,
+                f~housenumber ,
+                a~soldtoparty ,
+                g~regionname
+           WHERE d~PartnerFunction = 'WE' AND a~BillingDocument = @bill_doc
+           INTO @DATA(notify_comm).
+
+
+    DATA: addnotify TYPE string.
+
+    addnotify = notify_comm-StreetName.
+
+    IF notify_comm-StreetPrefixName1 IS NOT INITIAL.
+      IF addnotify IS NOT INITIAL.
+        CONCATENATE addnotify notify_comm-StreetPrefixName1 INTO addnotify SEPARATED BY ', '.
+      ELSE.
+        addnotify = notify_comm-StreetPrefixName1.
+      ENDIF.
+    ENDIF.
+
+    IF notify_comm-StreetPrefixName2 IS NOT INITIAL.
+      IF addnotify IS NOT INITIAL.
+        CONCATENATE addnotify notify_comm-StreetPrefixName2 INTO addnotify SEPARATED BY ', '.
+      ELSE.
+        addnotify = notify_comm-StreetPrefixName2.
+      ENDIF.
+    ENDIF.
+
+*         IF notify_comm-CityName IS NOT INITIAL.
+*          IF addnotify IS NOT INITIAL.
+*            CONCATENATE addnotify notify_comm-CityName INTO addnotify SEPARATED BY ', '.
+*          ELSE.
+*            addnotify = notify_comm-CityName.
+*          ENDIF.
+*        ENDIF.
+*
+*        IF notify_comm-PostalCode IS NOT INITIAL.
+*          IF addnotify IS NOT INITIAL.
+*            CONCATENATE addnotify notify_comm-PostalCode INTO addnotify SEPARATED BY '- '.
+*          ELSE.
+*            addnotify = notify_comm-PostalCode.
+*          ENDIF.
+*        ENDIF.
+*
+*        IF notify_comm-DistrictName IS NOT INITIAL.
+*          IF addnotify IS NOT INITIAL.
+*            CONCATENATE addnotify notify_comm-DistrictName INTO addnotify SEPARATED BY ', '.
+*          ELSE.
+*            addnotify = notify_comm-DistrictName.
+*          ENDIF.
+*        ENDIF.
+*
+*        CONCATENATE addnotify notify_comm-DistrictName INTO addnotify SEPARATED BY space.
+
+******************************************************************************************************************
+
 ***************************************container Logic
 
 
@@ -511,8 +602,8 @@ INTO @DATA(PackingCharging).
       c~YY1_NoofContainers_SDI,
       c~YY1_ContType_SDI
   FROM I_BillingDocumentItem AS a
-  LEFT JOIN I_SalesDocumentItem AS b ON a~SalesDocument = b~SalesDocument and a~SalesDocumentItem = b~SalesDocumentItem
-  LEFT JOIN i_salesquotationitemtp AS c ON b~ReferenceSDDocument = c~salesquotation and b~ReferenceSDDocumentItem = c~SalesQuotationItem
+  LEFT JOIN I_SalesDocumentItem AS b ON a~SalesDocument = b~SalesDocument AND a~SalesDocumentItem = b~SalesDocumentItem
+  LEFT JOIN i_salesquotationitemtp AS c ON b~ReferenceSDDocument = c~salesquotation AND b~ReferenceSDDocumentItem = c~SalesQuotationItem
   WHERE a~BillingDocument = @bill_doc
   INTO @DATA(wa_container).
 
@@ -534,12 +625,14 @@ INTO @DATA(PackingCharging).
     |<ApplicationNo>{ wa_notify-YY1_ApplicationPFINo_BDH }</ApplicationNo>| &&
     |<NotifyParty>{ wa_paymentterms-YY1_NotifyParty_BDH }</NotifyParty>| &&
     |<ThirdParty>{ wa_paymentterms-YY1_ThirdPartyName_BDH }</ThirdParty>| &&
+    |<NotifyParty_comm>{ notify_comm-FullName }</NotifyParty_comm>| &&
+    |<NotifyParty_add>{ addnotify }</NotifyParty_add>| &&
     |<TransactionCurrency>{ wa_notify-TransactionCurrency }</TransactionCurrency>| &&
     |<IRN>{ wa_irn-irnno }</IRN>| &&
     |<SignedQRCode>{ wa_irn-signedqrcode }</SignedQRCode>| &&
     |<EwayNo>{ wa_irn-ewaybillno }</EwayNo>| &&
     |<Fright>{ freight }</Fright>| &&
-    |<TCS>{ TCS }</TCS>| &&
+    |<TCS>{ tcs }</TCS>| &&
     |<Originalheader>{ invoicecopyname }</Originalheader>| &&
     |<PackingCharges>{ PackingCharging }</PackingCharges>| &&
     |<Insurance>{ Insurance }</Insurance>| &&
@@ -627,12 +720,13 @@ INTO @DATA(PackingCharging).
     |<Countrydestination>{ wa_potloading-YY1_CountryOfDestinati_SDH }</Countrydestination>| &&
     |<PortOfDischarge>{ wa_potloading-YY1_PortOfDischarge_SDH }</PortOfDischarge>| &&
     |<PortOfLoading>{ wa_potloading-YY1_PortOfLoading_SDH }</PortOfLoading>| &&
-    |<ShippingTerms>{ wa_incoterms-IncotermsClassification }</ShippingTerms>| &&
+    |<ShippingTerms>{ incoterms }</ShippingTerms>| &&
     |<PaymentTerms>{ wa_incoterms-PaymentTermsName }</PaymentTerms>| &&
     |<EWAYBILLNO>{ wa_header-ewaybillno }</EWAYBILLNO>| &&
     |<TRANSPORTERGSTIN>{ wa_header-transportergstin }</TRANSPORTERGSTIN>| &&
     |<TRANSPORTERNAME>{ wa_header-transportername }</TRANSPORTERNAME>| &&
     |<GRNO>{ wa_header-grno }</GRNO>| &&
+    |<Deliverymaterialcode>{ material_doc-ReferenceSDDocument }</Deliverymaterialcode>| &&
     |<GRDATE>{ wa_header-grdate }</GRDATE>| &&
     |<VehicleNo>{ wa_header-vehiclenum }</VehicleNo>| &&
     |<GrosWeight>{ wa_header-grossweight }</GrosWeight>| &&
@@ -706,8 +800,8 @@ INTO @DATA(PackingCharging).
       ON b~billingdocument = a~billingdocument
     INNER JOIN i_billingdocumentitem AS ref
       ON a~ReferenceSDDocument = ref~ReferenceSDDocument
-    INNER join i_billingdocumentitemtp as c
-    on a~BillingDocument = c~billingdocument and a~BillingDocumentItem = c~billingdocumentitem
+    INNER JOIN i_billingdocumentitemtp AS c
+    ON a~BillingDocument = c~billingdocument AND a~BillingDocumentItem = c~billingdocumentitem
     WHERE ref~billingdocument = @bill_doc
       AND b~sddocumentcategory = 'M'
        AND a~billingquantity <> 0
@@ -730,67 +824,80 @@ INTO @DATA(PackingCharging).
     INTO TABLE @DATA(wa_PCKDescription).
 
 ***************************************************************************************************************************CUSTOM INVOICE
-select from I_BillingDocumentItem as a
-inner join I_BillingDocumentTP as e on a~BillingDocument = e~BillingDocument
-inner join I_SalesOrderItem as f on a~SalesDocument = f~SalesOrder
-inner join I_SalesQuotationItemTP as i on f~ReferenceSDDocument = i~SalesQuotation and f~SalesOrderItem = i~SalesQuotationItem
-inner join I_BillingDocumentItemPrcgElmnt as b on a~BillingDocument = b~BillingDocument and a~BillingDocumentItem = b~BillingDocumentItem and b~ConditionType = 'PPR0'
-inner join I_BillingDocumentItemPrcgElmnt as c on a~BillingDocument = c~BillingDocument and a~BillingDocumentItem = c~BillingDocumentItem and c~ConditionType = 'ZDQT'
-inner join I_BillingDocumentItemPrcgElmnt as d on a~BillingDocument = d~BillingDocument and a~BillingDocumentItem = d~BillingDocumentItem and d~ConditionType = 'ZDPT'
-inner join I_BillingDocumentItemPrcgElmnt as g on a~BillingDocument = g~BillingDocument and a~BillingDocumentItem = g~BillingDocumentItem and g~ConditionType = 'ZFRT'
-inner join I_BillingDocumentItemPrcgElmnt as h on a~BillingDocument = h~BillingDocument and a~BillingDocumentItem = h~BillingDocumentItem and h~ConditionType = 'ZINS'
-inner join I_BillingDocumentItemPrcgElmnt as j on a~BillingDocument = j~BillingDocument and a~BillingDocumentItem = j~BillingDocumentItem and j~ConditionType = 'ZPCK'
-fields a~BillingQuantity,a~BillingDocument,a~BillingDocumentItem,a~ItemNetWeight,b~ConditionAmount as b_qty ,c~ConditionAmount as c_qty ,d~ConditionAmount as d_qty,
-g~ConditionAmount as g_qty ,h~ConditionAmount as h_qty,e~YY1_DFAIDate_BDH,e~YY1_DFIANo_BDH, a~SalesDocument
-,f~ReferenceSDDocument,j~ConditionAmount as j_qty
+    SELECT FROM I_BillingDocumentItem AS a
+    INNER JOIN I_BillingDocumentTP AS e ON a~BillingDocument = e~BillingDocument
+    INNER JOIN I_SalesOrderItem AS f ON a~SalesDocument = f~SalesOrder
+    INNER JOIN I_SalesQuotationItemTP AS i ON f~ReferenceSDDocument = i~SalesQuotation AND f~SalesOrderItem = i~SalesQuotationItem
+    INNER JOIN I_BillingDocumentItemPrcgElmnt AS b ON a~BillingDocument = b~BillingDocument AND a~BillingDocumentItem = b~BillingDocumentItem AND b~ConditionType = 'PPR0'
+    LEFT JOIN I_BillingDocumentItemPrcgElmnt AS c ON a~BillingDocument = c~BillingDocument AND a~BillingDocumentItem = c~BillingDocumentItem AND c~ConditionType = 'ZDQT'
+    LEFT JOIN I_BillingDocumentItemPrcgElmnt AS d ON a~BillingDocument = d~BillingDocument AND a~BillingDocumentItem = d~BillingDocumentItem AND d~ConditionType = 'ZDPT'
+    LEFT JOIN I_BillingDocumentItemPrcgElmnt AS g ON a~BillingDocument = g~BillingDocument AND a~BillingDocumentItem = g~BillingDocumentItem AND g~ConditionType = 'ZFRT'
+    LEFT JOIN I_BillingDocumentItemPrcgElmnt AS h ON a~BillingDocument = h~BillingDocument AND a~BillingDocumentItem = h~BillingDocumentItem AND h~ConditionType = 'ZINS'
+    LEFT JOIN I_BillingDocumentItemPrcgElmnt AS j ON a~BillingDocument = j~BillingDocument AND a~BillingDocumentItem = j~BillingDocumentItem AND j~ConditionType = 'ZPCK'
+    FIELDS
+     a~BillingQuantity,
+     a~BillingDocument,
+     a~Batch,
+     a~BillingDocumentItem,
+     a~ItemNetWeight,
+     b~ConditionAmount AS b_qty ,
+     c~ConditionAmount AS c_qty ,
+     d~ConditionAmount AS d_qty,
+     g~ConditionAmount AS g_qty ,
+     h~ConditionAmount AS h_qty,
+     e~YY1_DFAIDate_BDH,
+     e~YY1_DFIANo_BDH,
+     a~SalesDocument
+    ,f~ReferenceSDDocument,
+    j~ConditionAmount AS j_qty
 *,i~YY1_ContNo_SDI,i~YY1_ContType_SDI,i~YY1_NoofContainers_SDI,
-where a~BillingDocument = @bill_doc and a~BillingQuantity ne 0
-into table @data(it).
+    WHERE a~BillingDocument = @bill_doc AND a~BillingQuantity NE 0
+    INTO TABLE @DATA(it).
 
-sort it by BillingDocument BillingDocumentItem.
-delete ADJACENT DUPLICATES FROM it COMPARING ALL FIELDS.
+    SORT it BY BillingDocument BillingDocumentItem.
+    DELETE ADJACENT DUPLICATES FROM it COMPARING ALL FIELDS.
 
-SELECT Sum( conditionamount )
-FROM I_BillingDocumentItemPrcgElmnt
-WHERE billingdocument = @bill_doc
-  AND conditiontype = 'ZDPT'
-  INTO @DATA(dis_custom_pt).
+    SELECT SUM( conditionamount )
+    FROM I_BillingDocumentItemPrcgElmnt
+    WHERE billingdocument = @bill_doc
+      AND conditiontype = 'ZDPT'
+      INTO @DATA(dis_custom_pt).
 
-  SELECT Sum( conditionamount )
-FROM I_BillingDocumentItemPrcgElmnt
-WHERE billingdocument = @bill_doc
-  and ConditionType = 'ZDQT'
-  INTO @DATA(dis_custom_qt).
+    SELECT SUM( conditionamount )
+  FROM I_BillingDocumentItemPrcgElmnt
+  WHERE billingdocument = @bill_doc
+    AND ConditionType = 'ZDQT'
+    INTO @DATA(dis_custom_qt).
 
-SELECT Sum( conditionamount )
-FROM I_BillingDocumentItemPrcgElmnt
-WHERE billingdocument = @bill_doc
-  AND conditiontype = 'ZFRT'
-  INTO @DATA(frt_custom).
+    SELECT SUM( conditionamount )
+    FROM I_BillingDocumentItemPrcgElmnt
+    WHERE billingdocument = @bill_doc
+      AND conditiontype = 'ZFRT'
+      INTO @DATA(frt_custom).
 
 ***************************************************************************************************************************CUSTOM INVOICE
 
-DATA:
-  cif_qty  TYPE I_BillingDocumentItemPrcgElmnt-ConditionAmount VALUE 0,
-  dis      TYPE I_BillingDocumentItemPrcgElmnt-ConditionAmount VALUE 0,
-  fob      TYPE I_BillingDocumentItemPrcgElmnt-ConditionAmount VALUE 0,
-  frt      TYPE I_BillingDocumentItemPrcgElmnt-ConditionAmount VALUE 0,
-  ins      TYPE I_BillingDocumentItemPrcgElmnt-ConditionAmount VALUE 0,
-  dis_ttl  TYPE I_BillingDocumentItemPrcgElmnt-ConditionAmount VALUE 0,
-  other_charges type I_BillingDocumentItemPrcgElmnt-ConditionAmount VALUE 0,
-  netweight type p length 6 DECIMALS 3,
-  DFAIDATE TYPE D,
-  DFAINO  TYPE C LENGTH 10.
+    DATA:
+      cif_qty       TYPE p DECIMALS 5,
+      dis           TYPE I_BillingDocumentItemPrcgElmnt-ConditionAmount VALUE 0,
+      fob           TYPE I_BillingDocumentItemPrcgElmnt-ConditionAmount VALUE 0,
+      frt           TYPE I_BillingDocumentItemPrcgElmnt-ConditionAmount VALUE 0,
+      ins           TYPE I_BillingDocumentItemPrcgElmnt-ConditionAmount VALUE 0,
+      dis_ttl       TYPE I_BillingDocumentItemPrcgElmnt-ConditionAmount VALUE 0,
+      other_charges TYPE I_BillingDocumentItemPrcgElmnt-ConditionAmount VALUE 0,
+      netweight     TYPE p LENGTH 6 DECIMALS 3,
+      dfaidate      TYPE d,
+      dfaino        TYPE c LENGTH 10.
 
 
-  DATA container_no_count TYPE I.
- SELECT DISTINCT yy1_containerno_bdi
-  FROM i_billingdocumentitemtp
-  WHERE billingdocument = @bill_doc
-    AND yy1_containerno_bdi IS NOT INITIAL
-      INTO TABLE @DATA(wa_container_no).
+    DATA container_no_count TYPE i.
+    SELECT DISTINCT yy1_containerno_bdi
+     FROM i_billingdocumentitemtp
+     WHERE billingdocument = @bill_doc
+       AND yy1_containerno_bdi IS NOT INITIAL
+         INTO TABLE @DATA(wa_container_no).
 
-container_no_count = lines( wa_container_no ).
+    container_no_count = lines( wa_container_no ).
 
 
     LOOP AT it_item INTO DATA(wa_item).
@@ -803,60 +910,60 @@ container_no_count = lines( wa_container_no ).
 
 ******************************************************************************************************************************CUSTOM INVOICE
 
-Loop at it into data(wa_foter) .
- frt += wa_foter-g_qty.
- ins += wa_foter-h_qty.
- other_charges += wa_foter-j_qty.
+      LOOP AT it INTO DATA(wa_foter) .
+        frt += wa_foter-g_qty.
+        ins += wa_foter-h_qty.
+        other_charges += wa_foter-j_qty.
 * dis += wa_foter-c_qty * ( -1 ) + wa_foter-d_qty * ( -1 ).
-ENDLOOP.
+      ENDLOOP.
 
- dis  = dis_custom_pt * ( -1 ) + dis_custom_qt * ( -1 ).
+      dis  = dis_custom_pt * ( -1 ) + dis_custom_qt * ( -1 ).
 
-SELECT SINGLE YY1_ContainerNo_BDI,BILLINGDOCUMENTITEM
-  FROM i_billingdocumentitemtp
-  WHERE billingdocument = @bill_doc
-    AND billingdocumentitem = @wa_item-BillingDocumentItem
-  INTO  @DATA(container_no).
+      SELECT SINGLE YY1_ContainerNo_BDI,billingdocumentitem
+        FROM i_billingdocumentitemtp
+        WHERE billingdocument = @bill_doc
+          AND billingdocumentitem = @wa_item-BillingDocumentItem
+        INTO  @DATA(container_no).
 
 *  DATA container_no_count TYPE I.
 
 *   select from i_billingdocumentitemTp fields yy1_containerno_bdi where billingdocument = @bill_doc and BillingDocumentItem = @wa_item-BillingDocumentItem into TABLE @data(wa_container_no).
 * container_no_count += LINES( wa_container_no ).
 
-data(lv_fright) =
-    |<ItemContainerNo>{ container_no-YY1_ContainerNo_BDI }</ItemContainerNo>| &&
-    |<CustFreight>{ freight }</CustFreight>| &&
-    |<CustInsurance>{ Insurance }</CustInsurance>| &&
-    |<DFAIDate>{ wa_foter-YY1_DFAIDate_BDH }</DFAIDate>| &&
-    |<DFAIno>{ wa_foter-YY1_DFIANo_BDH }</DFAIno>| &&
-    |<otherCharges>{ PackingCharging }</otherCharges>| .
-     CONCATENATE lv_xml lv_fright INTO lv_xml.
-    clear:frt,ins,other_charges.
-    READ TABLE it WITH KEY BillingDocument = wa_item-BillingDocument BillingDocumentItem = wa_item-BillingDocumentItem INTO data(wa_cust).
-       IF sy-subrc = 0.
+      DATA(lv_fright) =
+          |<ItemContainerNo>{ container_no-YY1_ContainerNo_BDI }</ItemContainerNo>| &&
+          |<CustFreight>{ freight }</CustFreight>| &&
+          |<CustInsurance>{ Insurance }</CustInsurance>| &&
+          |<DFAIDate>{ wa_foter-YY1_DFAIDate_BDH }</DFAIDate>| &&
+          |<DFAIno>{ wa_foter-YY1_DFIANo_BDH }</DFAIno>| &&
+          |<otherCharges>{ PackingCharging }</otherCharges>| .
+      CONCATENATE lv_xml lv_fright INTO lv_xml.
+      CLEAR:frt,ins,other_charges.
+      READ TABLE it WITH KEY BillingDocument = wa_item-BillingDocument BillingDocumentItem = wa_item-BillingDocumentItem INTO DATA(wa_cust).
+      IF sy-subrc = 0.
 
-  cif_qty = wa_cust-b_qty - ( ( wa_cust-c_qty * ( -1 ) ) +  ( wa_cust-d_qty * ( -1 ) ) ).
-  fob += cif_qty.
-  cif_qty = wa_cust-b_qty + wa_cust-g_qty + wa_cust-h_qty.
-  cif_qty = cif_qty / wa_cust-ItemNetWeight.
-
-
-  netweight = wa_cust-ItemNetWeight.
+        cif_qty = wa_cust-b_qty - ( ( wa_cust-c_qty * ( -1 ) ) +  ( wa_cust-d_qty * ( -1 ) ) ).
+        fob += cif_qty.
+        cif_qty = wa_cust-b_qty + wa_cust-g_qty + wa_cust-h_qty.
+        cif_qty = cif_qty / wa_cust-ItemNetWeight.
 
 
-  " Generate CustomInvoice XML node for the retrieved item
-  DATA(lv_CustInvoice) =
-    |<CustomInvoice>| &&
-    |<CustCIFQuantity>{ cif_qty }</CustCIFQuantity>| &&
-    |<CustFOB>{ fob }</CustFOB>| &&
-    |<netWeight>{ netweight }</netWeight>| &&
-    |<CustDiscTotal>{ dis }</CustDiscTotal>| &&
-    |</CustomInvoice>|.
+        netweight = wa_cust-ItemNetWeight.
 
-  " Add to XML structure
-    CONCATENATE lv_xml lv_CustInvoice INTO lv_xml.
-    ENDIF.
-CLEAR: cif_qty, dis,frt, ins, dis_ttl, wa_cust , DFAIDate,DFAInO.
+
+        " Generate CustomInvoice XML node for the retrieved item
+        DATA(lv_CustInvoice) =
+          |<CustomInvoice>| &&
+          |<CustCIFQuantity>{ cif_qty }</CustCIFQuantity>| &&
+          |<CustFOB>{ fob }</CustFOB>| &&
+          |<netWeight>{ netweight }</netWeight>| &&
+          |<CustDiscTotal>{ dis }</CustDiscTotal>| &&
+          |</CustomInvoice>|.
+
+        " Add to XML structure
+        CONCATENATE lv_xml lv_CustInvoice INTO lv_xml.
+      ENDIF.
+      CLEAR: cif_qty, dis,frt, ins, dis_ttl, wa_cust , DFAIDate,DFAInO.
 *
 ******************************************************************************************************************************CUSTOM INVOICE
 
@@ -875,37 +982,38 @@ CLEAR: cif_qty, dis,frt, ins, dis_ttl, wa_cust , DFAIDate,DFAInO.
         lv_material_text = wa_pck-materialtext .
       ENDLOOP.
 
-  SELECT
-    a~Product,
-    a~Batch,
-    a~Plant,
-    a~ReferenceSDDocument,
-    b~matlbatchavailabilitydate,
-    b~shelflifeexpirationdate,
-    d~NetWeight as NetWeight_cust_pkg,
-    d~GrossWeight as GrossWeight_cust_pkg,
-    c~ConsumptionTaxCtrlCode AS hsncode_cust_pkg,
-    e~ActualDeliveryQuantity as TOtalCTNS_Cust_pkg
-FROM I_BillingDocumentItem AS a
-Inner JOIN i_batch AS b
-    ON a~Product = b~Material
-    AND a~Batch = b~Batch
-    AND a~Plant = b~Plant
-inner JOIN i_productplantbasic AS c
-    ON b~Material = c~Product AND b~Plant = c~Plant
-INNER JOIN I_Product as d
-    ON c~Product = d~Product
-INNER JOIN I_DeliveryDocumentItem as e
-    ON a~ReferenceSDDocument = e~DeliveryDocument
-    and a~ReferenceSDDocumentItem = e~DeliveryDocumentItem
-WHERE a~Batch NE ''
-    AND a~BillingDocument = @bill_doc
-    AND a~Product = @wa_item-Product
-    AND a~ReferenceSDDocument = @wa_item-ReferenceSDDocument
+      SELECT
+        a~Product,
+        a~Batch,
+        a~Plant,
+        a~billingdocumentitem,
+        a~ReferenceSDDocument,
+        b~matlbatchavailabilitydate,
+        b~shelflifeexpirationdate,
+        d~NetWeight AS NetWeight_cust_pkg,
+        d~GrossWeight AS GrossWeight_cust_pkg,
+        c~ConsumptionTaxCtrlCode AS hsncode_cust_pkg,
+        e~ActualDeliveryQuantity AS TOtalCTNS_Cust_pkg
+    FROM I_BillingDocumentItem AS a
+    INNER JOIN i_batch AS b
+        ON a~Product = b~Material
+        AND a~Batch = b~Batch
+        AND a~Plant = b~Plant
+    INNER JOIN i_productplantbasic AS c
+        ON b~Material = c~Product AND b~Plant = c~Plant
+    INNER JOIN I_Product AS d
+        ON c~Product = d~Product
+    INNER JOIN I_DeliveryDocumentItem AS e
+        ON a~ReferenceSDDocument = e~DeliveryDocument
+        AND a~ReferenceSDDocumentItem = e~DeliveryDocumentItem
+    WHERE a~Batch NE ''
+        AND a~BillingDocument = @bill_doc
+        AND a~Product = @wa_item-Product
+        AND a~ReferenceSDDocument = @wa_item-ReferenceSDDocument
 
-INTO TABLE @DATA(lt_batches).
+    INTO TABLE @DATA(lt_batches).
 
-read table it_round with key BillingDocument  = wa_item-BillingDocument  into data(wa_round).
+      READ TABLE it_round WITH KEY BillingDocument  = wa_item-BillingDocument  INTO DATA(wa_round).
 
       " Main item details
       DATA(lv_item_xml) =
@@ -928,49 +1036,50 @@ read table it_round with key BillingDocument  = wa_item-BillingDocument  into da
       CONCATENATE lv_xml lv_item_xml INTO lv_xml.
 
       " Add batch details for each batch
-        DATA(lv_batch_details) = ``.
-        data TotalNetWeight type p length 16 decimals 3.
-        data TotalGrossWeight type p length 16 decimals 3.
-        data foterpack type p.
-        data grossWeightTotal type p length 16 decimals 3.
-        data netweightTotal type p length 16 decimals 3.
+      DATA(lv_batch_details) = ``.
+      DATA TotalNetWeight TYPE p LENGTH 16 DECIMALS 3.
+      DATA TotalGrossWeight TYPE p LENGTH 16 DECIMALS 3.
+      DATA foterpack TYPE p.
+      DATA grossWeightTotal TYPE p LENGTH 16 DECIMALS 3.
+      DATA netweightTotal TYPE p LENGTH 16 DECIMALS 3.
 
-        Loop at lt_batches into data(wa_total).
-                foterpack += wa_total-totalctns_cust_pkg.
-        ENDLOOP.
-
-      LOOP AT lt_batches INTO DATA(wa_batch).
-        DATA(batch) = wa_batch-Batch.
-        DATA(manufacturedate) = wa_batch-matlbatchavailabilitydate.
-        DATA(mfd) = manufacturedate(4) && '/' && manufacturedate+4(2) && '/' && manufacturedate+6(2).
-        DATA(expiredate) = wa_batch-shelflifeexpirationdate.
-    DATA: lv_expiredate TYPE string.
-
-   CONCATENATE expiredate+0(4) '/' expiredate+4(2) '/' expiredate+6(2) INTO lv_expiredate.
-
-        TotalNetWeight = wa_batch-netweight_cust_pkg * wa_batch-totalctns_cust_pkg.
-           netweighttotal  += TotalNetWeight.
-        TotalGrossWeight = wa_batch-grossweight_cust_pkg * wa_batch-totalctns_cust_pkg.
-            grossweighttotal += TotalGrossWeight.
-
-
-       lv_batch_details = |MFG: { mfd }  EXP: { expiredate }  Batch Code: { batch }|.
-
-
-        DATA(lv_batch_xml) =
-        |<BatchNode>| &&
-        |<lv_batch_details>{ lv_batch_details }</lv_batch_details>| &&
-        |<hsncode_cust_pkg>{ wa_batch-hsncode_cust_pkg }</hsncode_cust_pkg>| &&
-        |<netweight_cust_pkg>{ wa_batch-netweight_cust_pkg }</netweight_cust_pkg>| &&
-        |<grossweight_cust_pkg>{ wa_batch-grossweight_cust_pkg }</grossweight_cust_pkg>| &&
-        |<totalctns_cust_pkg>{ wa_batch-totalctns_cust_pkg }</totalctns_cust_pkg>| &&
-        |<TotalNetWeight>{ TotalNetWeight }</TotalNetWeight>| &&
-        |<TotalGrossWeight>{ TotalGrossWeight }</TotalGrossWeight>| &&
-        |</BatchNode>|.
-
-        CONCATENATE lv_xml lv_batch_xml INTO lv_xml.
-
+      LOOP AT lt_batches INTO DATA(wa_total).
+        foterpack += wa_total-totalctns_cust_pkg.
       ENDLOOP.
+
+*      LOOP AT lt_batches INTO DATA(wa_batch).
+      READ TABLE lt_batches WITH KEY batch = wa_item-Batch BillingDocumentItem = wa_item-BillingDocumentItem INTO DATA(wa_batch) .
+      DATA(batch) = wa_batch-Batch.
+      DATA(manufacturedate) = wa_batch-matlbatchavailabilitydate.
+      DATA(mfd) = manufacturedate(4) && '/' && manufacturedate+4(2) && '/' && manufacturedate+6(2).
+      DATA(expiredate) = wa_batch-shelflifeexpirationdate.
+      DATA: lv_expiredate TYPE string.
+
+      CONCATENATE expiredate+0(4) '/' expiredate+4(2) '/' expiredate+6(2) INTO lv_expiredate.
+
+      TotalNetWeight = wa_batch-netweight_cust_pkg * wa_batch-totalctns_cust_pkg.
+      netweighttotal  += TotalNetWeight.
+      TotalGrossWeight = wa_batch-grossweight_cust_pkg * wa_batch-totalctns_cust_pkg.
+      grossweighttotal += TotalGrossWeight.
+
+
+      lv_batch_details = |MFG: { mfd }  EXP: { expiredate }  Batch Code: { batch }|.
+
+
+      DATA(lv_batch_xml) =
+      |<BatchNode>| &&
+      |<lv_batch_details>{ lv_batch_details }</lv_batch_details>| &&
+      |<hsncode_cust_pkg>{ wa_batch-hsncode_cust_pkg }</hsncode_cust_pkg>| &&
+      |<netweight_cust_pkg>{ wa_batch-netweight_cust_pkg }</netweight_cust_pkg>| &&
+      |<grossweight_cust_pkg>{ wa_batch-grossweight_cust_pkg }</grossweight_cust_pkg>| &&
+      |<totalctns_cust_pkg>{ wa_batch-totalctns_cust_pkg }</totalctns_cust_pkg>| &&
+      |<TotalNetWeight>{ TotalNetWeight }</TotalNetWeight>| &&
+      |<TotalGrossWeight>{ TotalGrossWeight }</TotalGrossWeight>| &&
+      |</BatchNode>|.
+
+      CONCATENATE lv_xml lv_batch_xml INTO lv_xml.
+
+*      ENDLOOP.
 
       " Close batch details section
       DATA(lv_close_batches) = |</BatchDetails>|.
@@ -984,10 +1093,10 @@ read table it_round with key BillingDocument  = wa_item-BillingDocument  into da
 *      WHERE a~mat = @wa_item-Product
 *      INTO  @DATA(wa_itemdesc).
 
-      Select single
-      from zmaterialtext as a
+      SELECT SINGLE
+      FROM zmaterialtext AS a
       FIELDS a~material_text
-      where a~materialcode = @wa_item-Product
+      WHERE a~materialcode = @wa_item-Product
      INTO  @DATA(wa_itemdesc).
 
       IF wa_itemdesc IS NOT INITIAL.
@@ -1033,27 +1142,20 @@ read table it_round with key BillingDocument  = wa_item-BillingDocument  into da
         FROM I_BillingDocItemPrcgElmntBasic AS a
          WHERE a~BillingDocument = @bill_doc AND a~BillingDocumentItem = @wa_item-BillingDocumentItem
         INTO TABLE @DATA(lt_item2).
-      DATA disc TYPE string.
+      DATA: disc      TYPE string,
+            gstamount TYPE string,
+            GSTRate   TYPE string.
 
-       data headng type string.
+      DATA headng TYPE string.
       LOOP AT lt_item2 INTO DATA(wa_item2).
-        IF wa_item2-ConditionType = 'ZDIS' OR wa_item2-ConditionType = 'ZDIV' OR
-           wa_item2-ConditionType = 'ZDPT' OR wa_item2-ConditionType = 'ZDQT'.
-          disc = wa_item2-ConditionAmount + disc.
-        ENDIF.
-
-*        if printform = 'stoOriginal' or printform = 'stoDuplicate' or printform = 'stoOffice'.
-*         if wa_item2-ConditionType = 'JOCG' or wa_item2-ConditionType = 'JOIG' or  wa_item2-ConditionType = 'JOSG' or wa_item2-ConditionType = 'JOIG'.
-*           headng = 'Tax Invoice'.
-*         else.
-*         headng = 'Bill Of Supply'.
-*        ENDIF.
-*        ENDIF.
+      IF wa_item2-ConditionType = 'ZDIS' OR wa_item2-ConditionType = 'ZDIV' OR
+         wa_item2-ConditionType = 'ZDPT' OR wa_item2-ConditionType = 'ZDQT'.
+        disc = wa_item2-ConditionAmount + disc.
+      ENDIF.
       ENDLOOP.
-*       data (  ) )=
-*        |<Heading>{ wa_item2-ConditionAmount }</Heading>| .
       LOOP AT lt_item2 INTO wa_item2.
         DATA(lv_item2_xml) =
+
         |<ItemPricingConditionNode>| &&
         |<ConditionAmount>{ wa_item2-ConditionAmount }</ConditionAmount>| &&
         |<ConditionBaseValue>{ wa_item2-ConditionBaseValue }</ConditionBaseValue>| &&
@@ -1080,15 +1182,15 @@ read table it_round with key BillingDocument  = wa_item-BillingDocument  into da
       CONCATENATE lv_xml lv_item3_xml INTO lv_xml.
       CLEAR: lv_item, lv_item_xml, lt_item2, wa_item, wa_rate, disc, lt_batches.
     ENDLOOP.
-         DATA(lv_summary_xml) =
-  |<NoofContainers>{ container_no_count }</NoofContainers>| &&
-  |<TotalPackages>{ foterpack }</TotalPackages>| &&
-  |<TotalGrossWeight>{ grossweighttotal }</TotalGrossWeight>| &&
-  |<TotalNetWeight>{ netweighttotal }</TotalNetWeight>| .
+    DATA(lv_summary_xml) =
+|<NoofContainers>{ container_no_count }</NoofContainers>| &&
+|<TotalPackages>{ foterpack }</TotalPackages>| &&
+|<TotalGrossWeight>{ grossweighttotal }</TotalGrossWeight>| &&
+|<TotalNetWeight>{ netweighttotal }</TotalNetWeight>| .
 
-CONCATENATE lv_xml lv_summary_xml INTO lv_xml.
+    CONCATENATE lv_xml lv_summary_xml INTO lv_xml.
 
-    clear: foterpack, grossweighttotal ,netweighttotal.
+    CLEAR: foterpack, grossweighttotal ,netweighttotal.
     DATA(lv_payment_term) =
       |<PaymentTerms>| &&
         |<PaymentTermsName>{ wa_paymentterms-PaymentTermsName }</PaymentTermsName>| &&    " pending

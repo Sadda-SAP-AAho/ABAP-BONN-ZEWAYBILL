@@ -78,26 +78,26 @@ CLASS ZCL_EWAY_GENERATION IMPLEMENTATION.
 
   METHOD generated_eway_bill.
 
-  DATA :        wa_itemlist TYPE ty_item_list.
+    DATA :        wa_itemlist TYPE ty_item_list.
 
-     SELECT SINGLE FROM i_billingdocument AS a
-    INNER JOIN I_BillingDocumentItem AS b ON a~BillingDocument = b~BillingDocument
-    FIELDS a~BillingDocument,
-    a~BillingDocumentType,
-    a~BillingDocumentDate,a~DistributionChannel,
-    b~Plant,a~CompanyCode, a~DocumentReferenceID
-    WHERE a~BillingDocument = @invoice
-    INTO @DATA(lv_document_details) PRIVILEGED ACCESS.
+    SELECT SINGLE FROM i_billingdocument AS a
+   INNER JOIN I_BillingDocumentItem AS b ON a~BillingDocument = b~BillingDocument
+   FIELDS a~BillingDocument,
+   a~BillingDocumentType,
+   a~BillingDocumentDate,a~DistributionChannel,
+   b~Plant,a~CompanyCode, a~DocumentReferenceID
+   WHERE a~BillingDocument = @invoice
+   INTO @DATA(lv_document_details) PRIVILEGED ACCESS.
 
-    DATA SupType Type STRING.
+    DATA SupType TYPE string.
 
-    IF lv_document_details-DistributionChannel ne 'EX'.
-        SupType = 'B2B'.
+    IF lv_document_details-DistributionChannel NE 'EX'.
+      SupType = 'B2B'.
     ELSE.
-        SupType = 'EXPWP'.
+      SupType = 'EXPWOP'.
     ENDIF.
 
-    DATA DocDate TYPE STRING.
+    DATA DocDate TYPE string.
 
     SHIFT lv_document_details-BillingDocument LEFT DELETING LEADING '0'.
     wa_final-docno      = lv_document_details-DocumentReferenceID.
@@ -106,8 +106,8 @@ CLASS ZCL_EWAY_GENERATION IMPLEMENTATION.
 
 
     SELECT SINGLE FROM ztable_plant
-    fields gstin_no, city, address1, address2, pin, state_code1,plant_name1
-    WHERE plant_code = @lv_document_details-plant and comp_code = @lv_document_details-CompanyCode INTO @DATA(sellerplantaddress) PRIVILEGED ACCESS.
+    FIELDS gstin_no, city, address1, address2, pin, state_code1,plant_name1
+    WHERE plant_code = @lv_document_details-plant AND comp_code = @lv_document_details-CompanyCode INTO @DATA(sellerplantaddress) PRIVILEGED ACCESS.
 
     wa_final-fromgstin    =  sellerplantaddress-gstin_no.
     wa_final-fromtrdname  =  sellerplantaddress-plant_name1.
@@ -123,29 +123,29 @@ CLASS ZCL_EWAY_GENERATION IMPLEMENTATION.
     wa_final-frompincode      =  sellerplantaddress-pin.
 
 
-     SELECT SINGLE * FROM i_billingdocumentpartner AS a  INNER JOIN i_customer AS
-            b ON ( a~customer = b~customer  ) WHERE a~billingdocument = @invoice
-             AND a~partnerfunction = 'RE' INTO  @DATA(buyeradd) PRIVILEGED ACCESS.
+    SELECT SINGLE * FROM i_billingdocumentpartner AS a  INNER JOIN i_customer AS
+           b ON ( a~customer = b~customer  ) WHERE a~billingdocument = @invoice
+            AND a~partnerfunction = 'RE' INTO  @DATA(buyeradd) PRIVILEGED ACCESS.
 
-    if SupType = 'EXPWP'.
-        wa_final-togstin = 'URP'.
-        wa_final-topincode   = '999999'  .
-        wa_final-tostatecode  = '96'  .
-        wa_final-acttostatecode  = '96'  .
-        wa_final-toplace = '96'.
+    IF SupType = 'EXPWOP'.
+      wa_final-togstin = 'URP'.
+      wa_final-topincode   = '999999'  .
+      wa_final-tostatecode  = '96'  .
+      wa_final-acttostatecode  = '96'  .
+      wa_final-toplace = '96'.
 
-    else.
-        wa_final-togstin = buyeradd-b-taxnumber3.
-        wa_final-topincode   = buyeradd-b-postalcode  .
+    ELSE.
+      wa_final-togstin = buyeradd-b-taxnumber3.
+      wa_final-topincode   = buyeradd-b-postalcode  .
 
-        SELECT SINGLE FROM zstatecodemaster
-        FIELDS Statecodenum
-        WHERE StateCode = @buyeradd-b-Region
-        INTO @DATA(lv_statecode).
+      SELECT SINGLE FROM zstatecodemaster
+      FIELDS Statecodenum
+      WHERE StateCode = @buyeradd-b-Region
+      INTO @DATA(lv_statecode).
 
-        wa_final-tostatecode  = lv_statecode  .
-        wa_final-acttostatecode  = lv_statecode .
-        wa_final-toplace = lv_statecode.
+      wa_final-tostatecode  = lv_statecode  .
+      wa_final-acttostatecode  = lv_statecode .
+      wa_final-toplace = lv_statecode.
     ENDIF.
 
     wa_final-tolglname = buyeradd-b-customername.
@@ -154,20 +154,23 @@ CLASS ZCL_EWAY_GENERATION IMPLEMENTATION.
     wa_final-toaddr2 = ''.
     wa_final-transactiontype = 1.
     wa_final-supplytype = 'O'.
-    IF lv_document_details-BillingDocumentType = 'JDC' OR lv_document_details-BillingDocumentType = 'JSN' OR lv_document_details-BillingDocumentType = 'JVR' OR lv_document_details-BillingDocumentType = 'JSP'.
-        wa_final-subsupplytype = '5'.
-        wa_final-doctype = 'CHL'.
+    IF lv_document_details-BillingDocumentType = 'JDC' OR lv_document_details-BillingDocumentType = 'JVR' OR lv_document_details-BillingDocumentType = 'JSP'.
+      wa_final-subsupplytype = '5'.
+      wa_final-doctype = 'CHL'.
+    ELSEIF lv_document_details-BillingDocumentType = 'JSN'.
+      wa_final-subsupplytype = '4'.
+      wa_final-doctype = 'CHL'.
     ELSE.
-        wa_final-subsupplytype = '1'.
-        wa_final-doctype = 'INV'.
+      wa_final-subsupplytype = '1'.
+      wa_final-doctype = 'INV'.
     ENDIF.
 
 
 
 
-    select single from zr_zirntp
+    SELECT SINGLE FROM zr_zirntp
     FIELDS Transportername, Vehiclenum, Grdate, Grno, Transportergstin
-    where Billingdocno = @invoice and Bukrs = @companycode
+    WHERE Billingdocno = @invoice AND Bukrs = @companycode
     INTO @DATA(Eway).
 
     wa_final-vehicleno = Eway-Vehiclenum .
@@ -177,15 +180,15 @@ CLASS ZCL_EWAY_GENERATION IMPLEMENTATION.
     wa_final-transporterid = Eway-Transportergstin .
     wa_final-transmode = '1'.
     IF wa_final-topincode NE wa_final-frompincode.
-        wa_final-transdistance = 0.
+      wa_final-transdistance = 0.
     ELSE.
-        wa_final-transdistance = 10.
+      wa_final-transdistance = 10.
     ENDIF.
     wa_final-vehicletype = 'R'.
 
     SELECT FROM I_BillingDocumentItem AS item
         LEFT JOIN I_ProductDescription AS pd ON item~Product = pd~Product AND pd~LanguageISOCode = 'EN'
-        LEFT JOIN i_productplantbasic AS c ON item~Product = c~Product and item~Plant = c~Plant
+        LEFT JOIN i_productplantbasic AS c ON item~Product = c~Product AND item~Plant = c~Plant
         FIELDS item~BillingDocument, item~BillingDocumentItem
         , item~Plant, item~ProfitCenter, item~Product, item~BillingQuantity, item~BaseUnit, item~BillingQuantityUnit, item~NetAmount,
              item~TaxAmount, item~TransactionCurrency, item~CancelledBillingDocument, item~BillingQuantityinBaseUnit,
@@ -194,69 +197,69 @@ CLASS ZCL_EWAY_GENERATION IMPLEMENTATION.
         WHERE item~BillingDocument = @invoice AND consumptiontaxctrlcode IS NOT INITIAL
            INTO TABLE @DATA(ltlines).
 
-      SELECT FROM I_BillingDocItemPrcgElmntBasic FIELDS BillingDocument , BillingDocumentItem, ConditionRateValue, ConditionAmount, ConditionType,
-        transactioncurrency AS d_transactioncurrency
-        WHERE BillingDocument = @invoice
-        INTO TABLE @DATA(it_price).
+    SELECT FROM I_BillingDocItemPrcgElmntBasic FIELDS BillingDocument , BillingDocumentItem, ConditionRateValue, ConditionAmount, ConditionType,
+      transactioncurrency AS d_transactioncurrency
+      WHERE BillingDocument = @invoice
+      INTO TABLE @DATA(it_price).
 
-      LOOP AT ltlines INTO DATA(wa_lines).
-        wa_itemlist-productname = wa_lines-ProductDescription.
-        wa_itemlist-productdesc = wa_lines-ProductDescription.
-        wa_itemlist-hsncode = wa_lines-consumptiontaxctrlcode.
-        wa_itemlist-quantity = wa_lines-BillingQuantity.
-
-
-        select single from zgstuom
-        FIELDS gstuom
-        where uom = @wa_lines-BillingQuantityUnit "and bukrs = @wa_lines-CompanyCode
-        into @DATA(UOM).
-
-        if UOM is INITIAL.
-            wa_itemlist-qtyunit = wa_lines-BillingQuantityUnit.
-        ELSE.
-            wa_itemlist-qtyunit = UOM.
-        ENDIF.
+    LOOP AT ltlines INTO DATA(wa_lines).
+      wa_itemlist-productname = wa_lines-ProductDescription.
+      wa_itemlist-productdesc = wa_lines-ProductDescription.
+      wa_itemlist-hsncode = wa_lines-consumptiontaxctrlcode.
+      wa_itemlist-quantity = wa_lines-BillingQuantity.
 
 
-         READ TABLE it_price INTO DATA(wa_price1) WITH KEY BillingDocument = wa_lines-BillingDocument
+      SELECT SINGLE FROM zgstuom
+      FIELDS gstuom
+      WHERE uom = @wa_lines-BillingQuantityUnit "and bukrs = @wa_lines-CompanyCode
+      INTO @DATA(uom).
+
+      IF uom IS INITIAL.
+        wa_itemlist-qtyunit = wa_lines-BillingQuantityUnit.
+      ELSE.
+        wa_itemlist-qtyunit = uom.
+      ENDIF.
+
+
+      READ TABLE it_price INTO DATA(wa_price1) WITH KEY BillingDocument = wa_lines-BillingDocument
+                                                      BillingDocumentItem = wa_lines-BillingDocumentItem
+                                                      ConditionType = 'JOIG'.
+      IF wa_price1 IS NOT INITIAL.
+        wa_itemlist-igstrate                       = wa_price1-ConditionRateValue.
+        CLEAR wa_price1.
+
+      ELSE.
+
+        READ TABLE it_price INTO DATA(wa_price2) WITH KEY BillingDocument = wa_lines-BillingDocument
                                                          BillingDocumentItem = wa_lines-BillingDocumentItem
-                                                         ConditionType = 'JOIG'.
-        if wa_price1 is not INITIAL.
-            wa_itemlist-igstrate                       = wa_price1-ConditionRateValue.
-            CLEAR wa_price1.
+                                                         ConditionType = 'JOSG'.
+        wa_itemlist-sgstrate                    = wa_price2-ConditionRateValue.
 
-        ELSE.
+        READ TABLE it_price INTO DATA(wa_price3) WITH KEY BillingDocument = wa_lines-BillingDocument
+                                                        BillingDocumentItem = wa_lines-BillingDocumentItem
+                                                        ConditionType = 'JOCG'.
+        wa_itemlist-cgstrate                    = wa_price3-ConditionRateValue.
 
-            READ TABLE it_price INTO DATA(wa_price2) WITH KEY BillingDocument = wa_lines-BillingDocument
-                                                             BillingDocumentItem = wa_lines-BillingDocumentItem
-                                                             ConditionType = 'JOSG'.
-            wa_itemlist-sgstrate                    = wa_price2-ConditionRateValue.
-
-             READ TABLE it_price INTO DATA(wa_price3) WITH KEY BillingDocument = wa_lines-BillingDocument
-                                                             BillingDocumentItem = wa_lines-BillingDocumentItem
-                                                             ConditionType = 'JOCG'.
-            wa_itemlist-cgstrate                    = wa_price3-ConditionRateValue.
-
-            CLEAR : wa_price2,wa_price3.
-        ENDIF.
+        CLEAR : wa_price2,wa_price3.
+      ENDIF.
 
 
 
-         wa_itemlist-taxableamount = wa_lines-NetAmount.
+      wa_itemlist-taxableamount = wa_lines-NetAmount.
 
 
-          wa_final-totalvalue   +=   + wa_itemlist-taxableamount.
-          IF wa_itemlist-igstrate ne 0.
-              wa_final-igstvalue +=  wa_itemlist-taxableamount *  ( wa_itemlist-igstrate / 100  ).
-          ENDIF.
+      wa_final-totalvalue   +=   + wa_itemlist-taxableamount.
+      IF wa_itemlist-igstrate NE 0.
+        wa_final-igstvalue +=  wa_itemlist-taxableamount *  ( wa_itemlist-igstrate / 100  ).
+      ENDIF.
 
-          if wa_itemlist-cgstrate ne 0.
-              wa_final-cgstvalue +=  wa_itemlist-taxableamount * ( wa_itemlist-cgstrate / 100 ).
-          ENDIF.
+      IF wa_itemlist-cgstrate NE 0.
+        wa_final-cgstvalue +=  wa_itemlist-taxableamount * ( wa_itemlist-cgstrate / 100 ).
+      ENDIF.
 
-          If wa_itemlist-sgstrate ne 0.
-              wa_final-sgstvalue +=  wa_itemlist-taxableamount *  ( wa_itemlist-sgstrate / 100 ).
-          ENDIF.
+      IF wa_itemlist-sgstrate NE 0.
+        wa_final-sgstvalue +=  wa_itemlist-taxableamount *  ( wa_itemlist-sgstrate / 100 ).
+      ENDIF.
 
 
 
@@ -264,8 +267,8 @@ CLASS ZCL_EWAY_GENERATION IMPLEMENTATION.
       CLEAR :  wa_itemlist.
     ENDLOOP.
 
-      wa_final-totinvvalue = wa_final-totalvalue + wa_final-igstvalue + wa_final-cgstvalue + wa_final-sgstvalue .
-      wa_final-itemlist = itemList.
+    wa_final-totinvvalue = wa_final-totalvalue + wa_final-igstvalue + wa_final-cgstvalue + wa_final-sgstvalue .
+    wa_final-itemlist = itemList.
 
     DATA:json TYPE REF TO if_xco_cp_json_data.
 

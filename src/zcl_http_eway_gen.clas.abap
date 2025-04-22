@@ -18,6 +18,29 @@ ENDCLASS.
 CLASS ZCL_HTTP_EWAY_GEN IMPLEMENTATION.
 
 
+  METHOD getDate.
+    DATA: lv_date_str   TYPE string,
+      lv_date       TYPE d,
+      lv_internal   TYPE c length 8.
+
+
+        " Extract the date part (DD/MM/YYYY)
+        DATA(lv_date_part) = datestr(10).  " '27/03/2025'
+
+        " Convert DD/MM/YYYY to YYYYMMDD
+        DATA: lv_day   TYPE c length 2,
+              lv_month TYPE c length 2,
+              lv_year  TYPE c length 4.
+
+        lv_day   = lv_date_part(2).
+        lv_month = lv_date_part+3(2).
+        lv_year  = lv_date_part+6(4).
+
+        CONCATENATE lv_year lv_month lv_day INTO result.
+
+  ENDMETHOD.
+
+
   METHOD if_http_service_extension~handle_request.
     CASE request->get_method(  ).
       WHEN CONV string( if_web_http_client=>post ).
@@ -157,27 +180,5 @@ CLASS ZCL_HTTP_EWAY_GEN IMPLEMENTATION.
             response->set_text( lv_error_response2->get_longtext( ) ).
         ENDTRY.
     ENDCASE.
-  ENDMETHOD.
-
-  METHOD getDate.
-    DATA: lv_date_str   TYPE string,
-      lv_date       TYPE d,
-      lv_internal   TYPE c length 8.
-
-
-        " Extract the date part (DD/MM/YYYY)
-        DATA(lv_date_part) = datestr(10).  " '27/03/2025'
-
-        " Convert DD/MM/YYYY to YYYYMMDD
-        DATA: lv_day   TYPE c length 2,
-              lv_month TYPE c length 2,
-              lv_year  TYPE c length 4.
-
-        lv_day   = lv_date_part(2).
-        lv_month = lv_date_part+3(2).
-        lv_year  = lv_date_part+6(4).
-
-        CONCATENATE lv_year lv_month lv_day INTO result.
-
   ENDMETHOD.
 ENDCLASS.

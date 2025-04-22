@@ -11,7 +11,9 @@ ENDCLASS.
 
 
 
-CLASS zproforma_test IMPLEMENTATION.
+CLASS ZPROFORMA_TEST IMPLEMENTATION.
+
+
   METHOD if_oo_adt_classrun~main.
 
 *  METHOD read_posts.
@@ -1036,5 +1038,4 @@ CONCATENATE lv_xml lv_summary_xml INTO lv_xml.
 *        result   = result12 ).
 *out->write( lv_xml ).
   ENDMETHOD.
-
 ENDCLASS.

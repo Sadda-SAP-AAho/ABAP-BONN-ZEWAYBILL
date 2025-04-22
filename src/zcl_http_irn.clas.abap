@@ -26,9 +26,117 @@ ENDCLASS.
 
 CLASS ZCL_HTTP_IRN IMPLEMENTATION.
 
+
   METHOD create_client.
     DATA(dest) = cl_http_destination_provider=>create_by_url( url ).
     result = cl_web_http_client_manager=>create_by_http_destination( dest ).
+  ENDMETHOD.
+
+
+  METHOD getDate.
+    DATA: lv_date_str   TYPE string,
+      lv_date       TYPE C LENGTH 10,
+      lv_internal   TYPE c length 8.
+
+
+
+    lv_date = datestr+0(10). " Extract '2025-04-08'
+    REPLACE ALL OCCURRENCES OF '-' IN lv_date WITH ''.
+    result = lv_date.
+
+  ENDMETHOD.
+
+
+   METHOD get_or_generate_token.
+
+*      select SINGLE from zr_integration_tab WITH PRIVILEGED ACCESS
+*         fields Intgpath,LastChangedAt
+*         where Intgmodule = 'GSP-TOKEN-BEARER'
+*         INTO @DATA(token).
+*
+*         DATA:       lv_date      TYPE d,
+*          lv_time      TYPE t,
+*          lv_diff      TYPE i.
+*
+**        Extract date and time from timestamp
+*         DATA(datestr) = CONV STRING( token-LastChangedAt ).
+*         lv_date = datestr+0(8).   " YYYYMMDD -> 20250320
+*         lv_time = datestr+8(6).   " HHMMSS   -> 075828
+*
+*
+**       Convert to system time format
+*        DATA(lv_ts_seconds) = ( lv_date - sy-datum ) * 86400 + ( lv_time - sy-uzeit ).
+*
+*        " Convert 24 hours to seconds
+*        DATA(lv_3hours) = 24 * 3600.
+*
+*        " Compare time difference
+*        IF abs( lv_ts_seconds ) < lv_3hours and token-Intgpath ne ''.
+*            result = token-Intgpath.
+*            RETURN.
+*        ENDIF.
+*
+
+      select SINGLE from zr_integration_tab
+         fields Intgpath
+         where Intgmodule = 'GSP-TOKEN-URL'
+         INTO @DATA(token_url).
+
+      select SINGLE from zr_integration_tab
+         fields Intgpath
+         where Intgmodule = 'GSP-TOKEN-HEAD-1'
+         INTO @DATA(client_id).
+
+         select SINGLE from zr_integration_tab
+         fields Intgpath
+         where Intgmodule = 'GSP-TOKEN-HEAD-2'
+         INTO @DATA(client_password).
+
+   TRY.
+        DATA(client) = create_client( CONV STRING( token_url ) ).
+      CATCH cx_static_check INTO DATA(lv_cx_static_check).
+        result = lv_cx_static_check->get_longtext( ).
+    ENDTRY.
+
+    DATA(req) = client->get_http_request(  ).
+
+    SPLIT client_id  AT ':' INTO DATA(HEAD1NAME) DATA(HEAD1VAL).
+    SPLIT client_password  AT ':' INTO DATA(HEAD2NAME) DATA(HEAD2VAL).
+
+    req->set_header_field(
+           EXPORTING
+           i_name  = HEAD1NAME
+             i_value = HEAD1VAL
+         ).
+
+     req->set_header_field(
+           EXPORTING
+           i_name  = HEAD2NAME
+             i_value = HEAD2VAL
+         ).
+
+
+    TRY.
+        DATA(response) = client->execute( if_web_http_client=>post )->get_text(  ).
+      CATCH cx_web_http_client_error INTO DATA(lv_cx_web_http_client_error). "cx_web_message_error.
+        result = lv_cx_web_http_client_error->get_longtext( ).
+        "handle exception
+    ENDTRY.
+
+    REPLACE ALL OCCURRENCES OF '{"access_token":"' IN response WITH ''.
+    SPLIT response AT '","token_type' INTO DATA(v1) DATA(v2) .
+    result = v1 .
+
+    TRY.
+        client->close(  ).
+
+*        update zintegration_tab set Intgpath = @result where Intgmodule = 'GSP-TOKEN-BEARER'.
+
+      CATCH cx_web_http_client_error INTO DATA(lv_cx_web_http_client_error2).
+        result = lv_cx_web_http_client_error2->get_longtext( ).
+        "handle exception
+    ENDTRY.
+
   ENDMETHOD.
 
 
@@ -242,112 +350,4 @@ CLASS ZCL_HTTP_IRN IMPLEMENTATION.
         ENDTRY.
     ENDCASE.
   ENDMETHOD.
-
-
-   METHOD get_or_generate_token.
-
-*      select SINGLE from zr_integration_tab WITH PRIVILEGED ACCESS
-*         fields Intgpath,LastChangedAt
-*         where Intgmodule = 'GSP-TOKEN-BEARER'
-*         INTO @DATA(token).
-*
-*         DATA:       lv_date      TYPE d,
-*          lv_time      TYPE t,
-*          lv_diff      TYPE i.
-*
-**        Extract date and time from timestamp
-*         DATA(datestr) = CONV STRING( token-LastChangedAt ).
-*         lv_date = datestr+0(8).   " YYYYMMDD -> 20250320
-*         lv_time = datestr+8(6).   " HHMMSS   -> 075828
-*
-*
-**       Convert to system time format
-*        DATA(lv_ts_seconds) = ( lv_date - sy-datum ) * 86400 + ( lv_time - sy-uzeit ).
-*
-*        " Convert 24 hours to seconds
-*        DATA(lv_3hours) = 24 * 3600.
-*
-*        " Compare time difference
-*        IF abs( lv_ts_seconds ) < lv_3hours and token-Intgpath ne ''.
-*            result = token-Intgpath.
-*            RETURN.
-*        ENDIF.
-*
-
-      select SINGLE from zr_integration_tab
-         fields Intgpath
-         where Intgmodule = 'GSP-TOKEN-URL'
-         INTO @DATA(token_url).
-
-      select SINGLE from zr_integration_tab
-         fields Intgpath
-         where Intgmodule = 'GSP-TOKEN-HEAD-1'
-         INTO @DATA(client_id).
-
-         select SINGLE from zr_integration_tab
-         fields Intgpath
-         where Intgmodule = 'GSP-TOKEN-HEAD-2'
-         INTO @DATA(client_password).
-
-   TRY.
-        DATA(client) = create_client( CONV STRING( token_url ) ).
-      CATCH cx_static_check INTO DATA(lv_cx_static_check).
-        result = lv_cx_static_check->get_longtext( ).
-    ENDTRY.
-
-    DATA(req) = client->get_http_request(  ).
-
-    SPLIT client_id  AT ':' INTO DATA(HEAD1NAME) DATA(HEAD1VAL).
-    SPLIT client_password  AT ':' INTO DATA(HEAD2NAME) DATA(HEAD2VAL).
-
-    req->set_header_field(
-           EXPORTING
-           i_name  = HEAD1NAME
-             i_value = HEAD1VAL
-         ).
-
-     req->set_header_field(
-           EXPORTING
-           i_name  = HEAD2NAME
-             i_value = HEAD2VAL
-         ).
-
-
-    TRY.
-        DATA(response) = client->execute( if_web_http_client=>post )->get_text(  ).
-      CATCH cx_web_http_client_error INTO DATA(lv_cx_web_http_client_error). "cx_web_message_error.
-        result = lv_cx_web_http_client_error->get_longtext( ).
-        "handle exception
-    ENDTRY.
-
-    REPLACE ALL OCCURRENCES OF '{"access_token":"' IN response WITH ''.
-    SPLIT response AT '","token_type' INTO DATA(v1) DATA(v2) .
-    result = v1 .
-
-    TRY.
-        client->close(  ).
-
-*        update zintegration_tab set Intgpath = @result where Intgmodule = 'GSP-TOKEN-BEARER'.
-
-      CATCH cx_web_http_client_error INTO DATA(lv_cx_web_http_client_error2).
-        result = lv_cx_web_http_client_error2->get_longtext( ).
-        "handle exception
-    ENDTRY.
-
-  ENDMETHOD.
-
-  METHOD getDate.
-    DATA: lv_date_str   TYPE string,
-      lv_date       TYPE C LENGTH 10,
-      lv_internal   TYPE c length 8.
-
-
-
-    lv_date = datestr+0(10). " Extract '2025-04-08'
-    REPLACE ALL OCCURRENCES OF '-' IN lv_date WITH ''.
-    result = lv_date.
-
-  ENDMETHOD.
-
-
 ENDCLASS.

@@ -17,7 +17,54 @@ ENDCLASS.
 
 
 
-CLASS zcl_http_cancelewb IMPLEMENTATION.
+CLASS ZCL_HTTP_CANCELEWB IMPLEMENTATION.
+
+
+  METHOD getPayload.
+
+
+          TYPES: BEGIN OF ty_item_list,
+               ewbNo type string,
+               cancelRsnCode type string,
+               cancelRmrk type string,
+           END OF ty_item_list.
+
+            DATA : wa_json TYPE ty_item_list.
+
+             SELECT SINGLE FROM ztable_irn AS a
+             FIELDS a~ewaybillno
+              WHERE a~billingdocno = @invoice AND
+              a~bukrs = @companycode
+              INTO @DATA(lv_table_data).
+
+              if lv_table_data = ''.
+                result = '1'.
+                return.
+              ENDIF.
+
+              wa_json-ewbno = lv_table_data.
+              wa_json-cancelrmrk = 'Data Entry Mistake'.
+              wa_json-cancelrsncode = '2'.
+
+
+             DATA:json TYPE REF TO if_xco_cp_json_data.
+
+            xco_cp_json=>data->from_abap(
+              EXPORTING
+                ia_abap      = wa_json
+              RECEIVING
+                ro_json_data = json   ).
+            json->to_string(
+              RECEIVING
+                rv_string =   DATA(lv_string) ).
+
+           REPLACE ALL OCCURRENCES OF '"EWBNO"' IN lv_string WITH '"ewbNo"'.
+            REPLACE ALL OCCURRENCES OF '"CANCELRSNCODE"' IN lv_string WITH '"cancelRsnCode"'.
+            REPLACE ALL OCCURRENCES OF '"CANCELRMRK"' IN lv_string WITH '"cancelRmrk"'.
+
+        result = lv_string.
+
+  ENDMETHOD.
 
 
   METHOD if_http_service_extension~handle_request.
@@ -161,52 +208,5 @@ CLASS zcl_http_cancelewb IMPLEMENTATION.
             response->set_text( lv_error_response2->get_longtext( ) ).
         ENDTRY.
     ENDCASE.
-  ENDMETHOD.
-
-
-  METHOD getPayload.
-
-
-          TYPES: BEGIN OF ty_item_list,
-               ewbNo type string,
-               cancelRsnCode type string,
-               cancelRmrk type string,
-           END OF ty_item_list.
-
-            DATA : wa_json TYPE ty_item_list.
-
-             SELECT SINGLE FROM ztable_irn AS a
-             FIELDS a~ewaybillno
-              WHERE a~billingdocno = @invoice AND
-              a~bukrs = @companycode
-              INTO @DATA(lv_table_data).
-
-              if lv_table_data = ''.
-                result = '1'.
-                return.
-              ENDIF.
-
-              wa_json-ewbno = lv_table_data.
-              wa_json-cancelrmrk = 'Data Entry Mistake'.
-              wa_json-cancelrsncode = '2'.
-
-
-             DATA:json TYPE REF TO if_xco_cp_json_data.
-
-            xco_cp_json=>data->from_abap(
-              EXPORTING
-                ia_abap      = wa_json
-              RECEIVING
-                ro_json_data = json   ).
-            json->to_string(
-              RECEIVING
-                rv_string =   DATA(lv_string) ).
-
-           REPLACE ALL OCCURRENCES OF '"EWBNO"' IN lv_string WITH '"ewbNo"'.
-            REPLACE ALL OCCURRENCES OF '"CANCELRSNCODE"' IN lv_string WITH '"cancelRsnCode"'.
-            REPLACE ALL OCCURRENCES OF '"CANCELRMRK"' IN lv_string WITH '"cancelRmrk"'.
-
-        result = lv_string.
-
   ENDMETHOD.
 ENDCLASS.

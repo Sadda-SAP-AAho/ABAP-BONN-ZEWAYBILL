@@ -3,6 +3,7 @@
 {
 "FROM":
 [
+"ZDT_USER_ITEM",
 "ZTABLE_IRN"
 ],
 "ASSOCIATED":

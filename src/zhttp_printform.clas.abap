@@ -68,19 +68,21 @@ CLASS ZHTTP_PRINTFORM IMPLEMENTATION.
           salesquotationtype = 'AG'.
         ENDIF.
         IF printname = 'stoOriginal' or printname = 'stoDuplicate' or printname = 'stoOffice'.
-         SELECT SINGLE FROM zintegration_tab AS A FIELDS A~intgpath WHERE A~intgmodule = 'TAXINVOICE' INTO @DATA(WA_INT).
-         ELSEIF printname = 'expoOriginal' or printname = 'expoTransporter' or printname = 'expoOffice'.
+         SELECT SINGLE FROM zintegration_tab AS a FIELDS a~intgpath WHERE a~intgmodule = 'TAXINVOICE' INTO @DATA(wa_int).
+        ELSEIF printname = 'expoOriginal' or printname = 'expoTransporter' or printname = 'expoOffice'.
          SELECT SINGLE from zintegration_tab as A FIELDS a~intgpath where a~intgmodule = 'EXPORTINVOICE' into @wa_int .
-           ELSEIF printname = 'DCOriginal' OR printname = 'DCDuplicate' OR  printname = 'DCOffice' .
+        ELSEIF printname = 'DCOriginal' OR printname = 'DCDuplicate' OR  printname = 'DCOffice' .
          SELECT SINGLE from zintegration_tab as A FIELDS a~intgpath where a~intgmodule = 'DELIVERYCHALLAN' into @wa_int .
-           ELSEIF printname = 'PL'.
+        ELSEIF printname = 'PL'.
          SELECT SINGLE from zintegration_tab as A FIELDS a~intgpath where a~intgmodule = 'PACKINGLIST' into @wa_int .
-               ELSEIF printname = 'COMINV'.
+        ELSEIF printname = 'COMINV'.
          SELECT SINGLE from zintegration_tab as A FIELDS a~intgpath where a~intgmodule = 'CommercialInvoice' into @wa_int .
-              ELSEIF printname = 'CUSINV'.
+        ELSEIF printname = 'CUSINV'.
          SELECT SINGLE from zintegration_tab as A FIELDS a~intgpath where a~intgmodule = 'CustomInvoice' into @wa_int .
          ELSEIF printname = 'CusPL'.
          SELECT SINGLE from zintegration_tab as A FIELDS a~intgpath where a~intgmodule = 'CustomPackinglist' into @wa_int .
+         ElseIF printname = 'CreditNote'.
+         select single from zintegration_tab as A FIELDS a~intgpath where a~intgmodule = 'CREDITNOTE' into @wa_int .
          ENDIF.
         CASE request->get_method( ).
           WHEN CONV string( if_web_http_client=>get ).
@@ -92,7 +94,9 @@ CLASS ZHTTP_PRINTFORM IMPLEMENTATION.
               FROM I_BillingDocument
               WHERE BillingDocument = @getdocument AND CompanyCode = @getcompanycode
               INTO @DATA(wa_check).
-              getresult = wa_check-DistributionChannel.
+              getresult = ( wa_check-DistributionChannel ).
+*              getresult = |DistributionChannel: { wa_check-DistributionChannel }, BillingDocumentType: { wa_check-BillingDocumentType }|.
+
 *                    response->set_text( wa_check-DistributionChannel ).
             ELSEIF printname = 'DCOriginal' or printname = 'DCDuplicate' or printname = 'DCOffice'.
               SELECT Single BillingDocumentType , BillingDocument
@@ -108,6 +112,14 @@ CLASS ZHTTP_PRINTFORM IMPLEMENTATION.
               WHERE SalesQuotation = @salesquotation
               INTO @DATA(wa).
               getresult = wa .
+
+            ElseIF printname = 'CreditNote'.
+              SELECT SINGLE BillingDocumentType
+              FROM I_BillingDocument
+              WHERE BillingDocument = @getdocument AND CompanyCode = @getcompanycode
+              INTO @DATA(wa_credit).
+
+              getresult = wa_credit.
             ENDIF.
             response->set_text( getresult ).
 
@@ -128,7 +140,13 @@ CLASS ZHTTP_PRINTFORM IMPLEMENTATION.
             WHERE BillingDocument = @doc AND CompanyCode = @cc
             INTO @DATA(wa_validprint).
 
-            IF printname = 'stoOriginal' OR printname = 'stoDuplicate' OR printname = 'stoOffice' OR printname = 'expoOriginal' OR printname = 'expoTransporter' OR printname = 'expoOffice'.
+            IF printname = 'stoOriginal' OR
+               printname = 'stoDuplicate' OR
+               printname = 'stoOffice' OR
+               printname = 'expoOriginal' OR
+               printname = 'expoTransporter' OR
+               printname = 'expoOffice' OR
+               printname = 'CreditNote'.
               IF wa_validprint-BillingDocumentIsCancelled = 'X'.
                 response->set_text( 'This invoice has already been cancelled.' ).
                 RETURN.
@@ -146,7 +164,8 @@ CLASS ZHTTP_PRINTFORM IMPLEMENTATION.
                           WHEN 'stoOffice'  THEN 'ZBonnTaxInvoice/ZBonnTaxInvoice'
                           WHEN 'expoOriginal' THEN 'ZBonnExportInvoice/ZBonnExportInvoice'
                           WHEN 'expoTransporter' THEN 'ZBonnExportInvoice/ZBonnExportInvoice'
-                          WHEN 'expoOffice' THEN 'ZBonnExportInvoice/ZBonnExportInvoice'  ) ).
+                          WHEN 'expoOffice' THEN 'ZBonnExportInvoice/ZBonnExportInvoice'
+                          when 'CreditNote' then 'ZBonnCreditNote/ZBonnCreditNote' ) ).
 
                   IF pdf = 'ERROR'.
                     response->set_text( 'Error generating PDF. Please check the document data.' ).

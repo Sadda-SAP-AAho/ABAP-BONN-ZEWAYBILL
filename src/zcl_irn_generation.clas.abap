@@ -184,14 +184,14 @@ CLASS ZCL_IRN_GENERATION IMPLEMENTATION.
     IF lv_trans_details-DistributionChannel ne 'EX'.
         wa_final-transaction_details-supply_type = 'B2B'.
     ELSE.
-        wa_final-transaction_details-supply_type = 'EXPWP'.
+        wa_final-transaction_details-supply_type = 'EXPWOP'.
     ENDIF.
     wa_final-transaction_details-reg_rev = 'N'.
     wa_final-transaction_details-tax_sch = 'GST'.
 
 ********************************Export Details
 
-    if wa_final-transaction_details-supply_type = 'EXPWP'.
+    if wa_final-transaction_details-supply_type = 'EXPWOP'.
 
         wa_final-export_details-country_code = lv_trans_details-Country.
         wa_final-export_details-foreign_currency = lv_trans_details-TransactionCurrency .
@@ -203,7 +203,7 @@ CLASS ZCL_IRN_GENERATION IMPLEMENTATION.
         SELECT SINGLE FROM I_BillingDocumentItem AS a
         inner join I_BILLINGDOCITEMPARTNER as b ON a~BillingDocument = b~BillingDocument
         INNER JOIN i_customer AS c ON  c~customer = b~customer
-        FIELDS c~taxnumber3, c~CustomerFullName, c~CustomerName, c~CityName, c~PostalCode, c~Country
+        FIELDS c~taxnumber3, c~CustomerFullName, c~CustomerName, c~CityName, c~PostalCode, c~Country, c~Region
          WHERE a~billingdocument = @document and b~PartnerFunction = 'WE'
         INTO @DATA(lv_shipDetails) PRIVILEGED ACCESS.
 
@@ -225,11 +225,15 @@ CLASS ZCL_IRN_GENERATION IMPLEMENTATION.
             wa_final-ship_details-location   = ShipCountry .
             wa_final-ship_details-pincode   = '999999'  .
         ENDIF.
-        IF lv_shipDetails-TaxNumber3 NE ''.
-            wa_final-ship_details-state_code = lv_shipDetails-TaxNumber3+0(2) .
-        else.
-            wa_final-ship_details-state_code  = '96' .
-        ENDIF.
+
+
+
+        SELECT SINGLE FROM zstatecodemaster
+        FIELDS Statecodenum
+        WHERE StateCode = @lv_shipDetails-Region
+        INTO @DATA(lv_statecode1).
+
+        wa_final-ship_details-state_code  = lv_statecode1.
 
 
 
@@ -287,7 +291,7 @@ CLASS ZCL_IRN_GENERATION IMPLEMENTATION.
             b ON ( a~customer = b~customer  ) WHERE a~billingdocument = @document
              AND a~partnerfunction = 'RE' INTO  @DATA(buyeradd) PRIVILEGED ACCESS.
 
-    if wa_final-transaction_details-supply_type = 'EXPWP'.
+    if wa_final-transaction_details-supply_type = 'EXPWOP'.
         wa_final-buyer_details-gstin = 'URP'.
         wa_final-buyer_details-pincode   = '999999'  .
         wa_final-buyer_details-state_code  = '96'  .
